@@ -11,17 +11,25 @@ package uk.co.bbc.iplayer.tracking;
 import java.util.List;
 
 /**
- * @author desilva
- *
+ * An interface to the product backlog that can be called by a web service.
  */
 public interface IBacklog
 {
     /**
-     * 
-     * @param s
+     * Adds a story to the product backlog.
+     * @param s  the story to add to the backlog.  We assume that the 
+     *      Story.Points value is non-negative (see github question 1) and that
+     *      Story.Priority can be duplicated among the set of added stories
+     *      (github question 2).
      */
     public void Add(Story s);
     
+    /**
+     * Removes a story with the given id from the backlog.
+     * @param id  the id of the story to remove.
+     * @return  the Story that was removed or null if the story was not found 
+     *      (github question 3).
+     */
     public Story Remove(String id);
     
     /**

@@ -21,10 +21,22 @@ public class Backlog implements IBacklog
      * {@inheritDoc}
      */
     @Override
-    public void Add(Story s)
+    public void Add(Story story)
     {
+        // Check that the story is valid.  If it isn't don't add it (gihub 
+        //      question 4)
+        
+        //Check story points are non-negative.  If they are negative, don't do
+        //  the add.
+        if(story.Points < 0)
+        {
+            return;
+        }
+        
+        // Add the story to the backlog
+        
+        
         // TODO Auto-generated method stub
-
     }
 
     /**

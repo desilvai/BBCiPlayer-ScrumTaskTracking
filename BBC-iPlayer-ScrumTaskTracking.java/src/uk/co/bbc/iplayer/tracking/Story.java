@@ -9,8 +9,11 @@
 package uk.co.bbc.iplayer.tracking;
 
 /**
- * @author desilva
- *
+ * Represents a story to add or store in the backlog (an instance of 
+ * {@link IBacklog}). 
+ * 
+ * I assume I have to use these directly and should not go through a 
+ * getter/setter as is typically done.
  */
 public class Story
 {
