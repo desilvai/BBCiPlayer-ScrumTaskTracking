@@ -41,7 +41,7 @@ public class TestUsingDB
     private static final String CREATE_TABLE_SQL = "CREATE TABLE " 
             + StoryDB.STORY_TABLE 
             + "( DB_ID INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), "
-            + " " + STORY_FIELDS.ID.toString() + " varchar(32) UNIQUE,"
+            + " " + STORY_FIELDS.ID.toString() + " varchar(" + StoryDB.ID_FIELD_SIZE + ") UNIQUE,"
             + " " + STORY_FIELDS.POINTS.toString() + " int NOT NULL CHECK ("
                 + STORY_FIELDS.POINTS.toString() + ">=0),"
             + " " + STORY_FIELDS.PRIORITY.toString() + " int NOT NULL"

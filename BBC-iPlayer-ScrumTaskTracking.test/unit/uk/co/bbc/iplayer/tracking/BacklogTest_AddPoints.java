@@ -20,10 +20,12 @@ import org.junit.runners.Parameterized.Parameters;
 
 import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.messages.Messages;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
 /**
- * This tests the add function of the IBacklog implementation.
+ * This tests the add function of the IBacklog implementation with respect to 
+ * the point values of the stories to be added. 
  * 
  * For testing a story's points on add, there are the following equivalence
  * classes (assuming we cannot have negative point values -- See github question 
@@ -42,7 +44,7 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  *
  */
 @RunWith(value = Parameterized.class)
-public class BacklogTest_Add extends TestUsingDB
+public class BacklogTest_AddPoints extends TestUsingDB
 {
     /**
      * The data for boundary value testing of the points part of the story to be
@@ -102,7 +104,7 @@ public class BacklogTest_Add extends TestUsingDB
      * @param expectedResults  the expected outcome of the test (true if the 
      *      test should succeed, false otherwise).
      */
-    public BacklogTest_Add(int points, boolean expectedResult)
+    public BacklogTest_AddPoints(int points, boolean expectedResult)
     {
         this.points = points;
         this.expectedResult = expectedResult;
@@ -140,25 +142,45 @@ public class BacklogTest_Add extends TestUsingDB
         //We need this for comparing later.
         Story expected = new Story(story);
         
-        this.backlog.Add(story);
+        try
+        {
+            this.backlog.Add(story);
+        }
+        catch(TaskTrackerException e)
+        {
+            if(this.expectedResult)
+            {
+                //We expected success, but didn't actually succeed
+                throw e;
+            }
+            
+            //else
+            //Check that we got the right error message
+            String expectedMessage = Messages.getString("StoryNegativePoints"); 
+            Assert.assertEquals(expectedMessage, e.getMessage());
+            
+            //Check that the DB is still empty.
+            Assert.assertEquals(0, this.storyDB.getStoryCount());
+            return;
+        }
         
         //Check for success or failure.
-        if(this.expectedResult)
+        if(!this.expectedResult)
         {
-            //check success
-            Assert.assertEquals(1, this.storyDB.getStoryCount());
-            
-            
-            List<Story> stories = this.storyDB.getAllStories();
-            Assert.assertEquals(1, stories.size());
-            
-            Story actualStory = stories.get(0);
-            Assert.assertEquals(expected, actualStory);
+            //Failure occurred.
+            Assert.fail("Failed to catch a problem with adding a story with "
+                    + "point value " + this.points + " to the database.");
         }
-        else
-        {
-            Assert.assertEquals(0, this.storyDB.getStoryCount());
-        }
+        
+        //else success
+        Assert.assertEquals(1, this.storyDB.getStoryCount());
+        
+        
+        List<Story> stories = this.storyDB.getAllStories();
+        Assert.assertEquals(1, stories.size());
+        
+        Story actualStory = stories.get(0);
+        Assert.assertEquals(expected, actualStory);
     }
 
 }

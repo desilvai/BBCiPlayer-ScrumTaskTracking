@@ -19,8 +19,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import uk.co.bbc.iplayer.tracking.Backlog;
 import uk.co.bbc.iplayer.tracking.Story;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.messages.Messages;
 
 /**
  * Encapsulates the database functions.
@@ -102,6 +104,16 @@ public class StoryDB
         }
     }
     
+    public static final int ID_FIELD_SIZE = Backlog.MAX_ID_LENGTH;
+    
+    
+//    //-------------------------------------------------------------------------
+//    //  SQL ERROR CODES
+//    //-------------------------------------------------------------------------
+//    private static final String SQL_ERROR_NULL_VALUE = "23502";
+//    private static final String SQL_ERROR_DUPLICATE_KEY = "23505";
+//    private static final String SQL_ERROR_CONSTRAINT_VIOLATION = "23513";
+//    
     
     //-------------------------------------------------------------------------
     //  SQL CONSTANTS
@@ -145,7 +157,8 @@ public class StoryDB
     {
         try(Connection connection = this.openConnection())
         {
-            //Get our insert SQL statement ready.
+            //Get our insert SQL statement ready.  Using a prepared statement
+            //  protects us from SQL injection.
             PreparedStatement addStatement = connection.prepareStatement(ADD_STORY);
             addStatement.setString(STORY_FIELDS.ID.getFieldNumber(), story.Id);
             addStatement.setInt(STORY_FIELDS.POINTS.getFieldNumber(),
@@ -170,6 +183,13 @@ public class StoryDB
         }
         catch(SQLException e)
         {
+//            String message = Messages.getString(DBErrorAdd, story.Id);
+//            switch(e.getSQLState())
+//            {
+//                case SQL_ERROR_NULL_VALUE:
+//                    e.
+//                    
+//            }
             throw new TaskTrackerException(e);
         }
     }

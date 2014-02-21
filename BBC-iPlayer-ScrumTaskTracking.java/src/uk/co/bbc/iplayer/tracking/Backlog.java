@@ -12,6 +12,7 @@ import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.messages.Messages;
 
 /**
  * @author desilva
@@ -19,6 +20,8 @@ import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
  */
 public class Backlog implements IBacklog
 {
+    public static final int MAX_ID_LENGTH = 32;
+    
     /**
      * The story database wrapper.  This abstracts out the SQL and allows for 
      * mocking.
@@ -29,19 +32,34 @@ public class Backlog implements IBacklog
      * {@inheritDoc}
      */
     @Override
-    public void Add(Story story)
+    public void Add(Story story) throws TaskTrackerException
     {
-        // Check that the story is valid.  If it isn't don't add it (gihub 
-        //      question 4)
+        // Check that the story is valid.  
         
         //Check story points are non-negative.  If they are negative, don't do
         //  the add.
         if(story.Points < 0)
         {
-            return;
+            throw new TaskTrackerException(Messages.getString("StoryNegativePoints"));
         }
         
-        //TODO -- finish checking the inputs.
+        
+        //Check that the ID is non-null and small enough to fit in the DB.
+        if(story.Id == null)
+        {
+            throw new TaskTrackerException(Messages.getString("StoryNullId"));
+        }
+        
+        if(story.Id.length() > MAX_ID_LENGTH)
+        {
+            throw new TaskTrackerException(Messages.getString("StoryIdTooLong", 
+                                                              MAX_ID_LENGTH, 
+                                                              story.Id.length()));
+        }
+        
+        //NOTE:  We aren't checking if there is a negative priority.  This is 
+        //      still valid as far as we are concerned.
+        
         
         // Add the story to the backlog
         try
@@ -51,10 +69,10 @@ public class Backlog implements IBacklog
         catch(TaskTrackerException e)
         {
             //TODO -- Add logging code.
-            //Because we have no way of returning the error, eat it.  I know
-            //  this is a bad practice.
             
-            e.printStackTrace();
+            //TODO -- would this be better done in the story DB code?
+            throw new TaskTrackerException(Messages.getString("DBErrorAdd", 
+                                                              story.Id));
         }
     }
 

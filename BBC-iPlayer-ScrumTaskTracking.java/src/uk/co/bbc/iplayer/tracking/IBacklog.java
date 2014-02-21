@@ -10,6 +10,8 @@ package uk.co.bbc.iplayer.tracking;
 
 import java.util.List;
 
+import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+
 /**
  * An interface to the product backlog that can be called by a web service.
  */
@@ -21,8 +23,10 @@ public interface IBacklog
      *      Story.Points value is non-negative (see github question 1) and that
      *      Story.Priority can be duplicated among the set of added stories
      *      (github question 2).
+     * @throws TaskTrackerException  if there was a problem adding the story to 
+     *      the product backlog.
      */
-    public void Add(Story s);
+    public void Add(Story s) throws TaskTrackerException;
     
     /**
      * Removes a story with the given id from the backlog.
