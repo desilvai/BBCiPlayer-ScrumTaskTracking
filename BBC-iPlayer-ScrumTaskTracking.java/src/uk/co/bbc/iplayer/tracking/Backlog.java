@@ -10,12 +10,20 @@ package uk.co.bbc.iplayer.tracking;
 
 import java.util.List;
 
+import uk.co.bbc.iplayer.tracking.db.StoryDB;
+import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+
 /**
  * @author desilva
  *
  */
 public class Backlog implements IBacklog
 {
+    /**
+     * The story database wrapper.  This abstracts out the SQL and allows for 
+     * mocking.
+     */
+    protected StoryDB storyDB = new StoryDB();
 
     /**
      * {@inheritDoc}
@@ -33,10 +41,21 @@ public class Backlog implements IBacklog
             return;
         }
         
+        //TODO -- finish checking the inputs.
+        
         // Add the story to the backlog
-        
-        
-        // TODO Auto-generated method stub
+        try
+        {
+            this.storyDB.addValue(story);
+        }
+        catch(TaskTrackerException e)
+        {
+            //TODO -- Add logging code.
+            //Because we have no way of returning the error, eat it.  I know
+            //  this is a bad practice.
+            
+            e.printStackTrace();
+        }
     }
 
     /**

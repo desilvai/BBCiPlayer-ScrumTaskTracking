@@ -8,15 +8,19 @@
  */
 package uk.co.bbc.iplayer.tracking;
 
-import static org.junit.Assert.fail;
-
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import uk.co.bbc.iplayer.tracking.db.StoryDB;
+import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
 /**
  * This tests the add function of the IBacklog implementation.
@@ -38,7 +42,7 @@ import org.junit.runners.Parameterized.Parameters;
  *
  */
 @RunWith(value = Parameterized.class)
-public class BacklogTest_Add
+public class BacklogTest_Add extends TestUsingDB
 {
     /**
      * The data for boundary value testing of the points part of the story to be
@@ -81,6 +85,11 @@ public class BacklogTest_Add
      * or false otherwise.
      */
     private boolean expectedResult;
+    
+    /**
+     * The database containing the stories
+     */
+    private StoryDB storyDB;
 
     
     
@@ -101,6 +110,8 @@ public class BacklogTest_Add
         //Create a new one each time to make sure that we are working with a 
         //  clean backlog instance.
         this.backlog = new Backlog();
+        
+        this.storyDB = new StoryDB();
     }
     
     
@@ -115,27 +126,39 @@ public class BacklogTest_Add
      * We then check for success or failure based on what we were told to expect
      * (if {@link #expectedResult} is true, we expect success, otherwise we 
      * expect failure).
+     * @throws TaskTrackerException 
      */
     @Test
-    public void testAdd()
+    public void testAdd() throws TaskTrackerException
     {
+        //The test input.  Only the points varies between executions.
         Story story = new Story();
         story.Points = this.points;
         story.Priority = 1;
-        story.Id = null;
+        story.Id = "TEST_ID";
+        
+        //We need this for comparing later.
+        Story expected = new Story(story);
         
         this.backlog.Add(story);
         
-        //TODO -- check that this succeeds/fails inside the object.
+        //Check for success or failure.
         if(this.expectedResult)
         {
             //check success
+            Assert.assertEquals(1, this.storyDB.getStoryCount());
+            
+            
+            List<Story> stories = this.storyDB.getAllStories();
+            Assert.assertEquals(1, stories.size());
+            
+            Story actualStory = stories.get(0);
+            Assert.assertEquals(expected, actualStory);
         }
         else
         {
-            //check failure.
+            Assert.assertEquals(0, this.storyDB.getStoryCount());
         }
-        fail("Not yet implemented");
     }
 
 }

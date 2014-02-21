@@ -33,4 +33,50 @@ public class Story
      * a story with priority 3). 
      */
     public int Priority;
+    
+    
+    
+    /**
+     * Constructor
+     */
+    public Story()
+    {
+    }
+    
+    
+    /**
+     * Copy constructor
+     * @param that  the object to copy.
+     */
+    public Story(Story that)
+    {
+        this.Id = that.Id;
+        this.Points = that.Points;
+        this.Priority = that.Priority;
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other)
+    {
+        Story that;
+        try
+        {
+            that = (Story) other;
+        }
+        catch(ClassCastException e)
+        {
+            return false;
+        }
+        
+        if((this.Id == null && that.Id != null) || ! this.Id.equals(that.Id))
+        {
+            return false;
+        }
+        return this.Points == that.Points && this.Priority == that.Priority;
+        
+    }
 }
