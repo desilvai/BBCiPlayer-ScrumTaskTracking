@@ -22,7 +22,7 @@ public interface IBacklog
      * @param s  the story to add to the backlog.  We assume that the 
      *      Story.Points value is non-negative (see github question 1) and that
      *      Story.Priority can be duplicated among the set of added stories
-     *      (github question 2).
+     *      (github question 2).  Story Ids must be unique.
      * @throws TaskTrackerException  if there was a problem adding the story to 
      *      the product backlog.
      */
@@ -31,10 +31,11 @@ public interface IBacklog
     /**
      * Removes a story with the given id from the backlog.
      * @param id  the id of the story to remove.
-     * @return  the Story that was removed or null if the story was not found 
-     *      (github question 3).
+     * @return  the Story that was removed.
+     * @throws TaskTrackerExecption  if there was a problem removing the story
+     *      from the database.
      */
-    public Story Remove(String id);
+    public Story Remove(String id) throws TaskTrackerException;
     
     /**
      * Gets the list of stories that will fit into a sprint given the number

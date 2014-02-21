@@ -126,6 +126,21 @@ public class StoryDB
             + " VALUES (?,?,?)";
     
     
+    /**
+     * SQL to delete a story by ID
+     */
+    private static final String DELETE_STORY = "DELETE FROM " + STORY_TABLE 
+            + " WHERE " + STORY_FIELDS.ID.toString() + "= ?"; 
+    
+    
+    /**
+     * SQL to get a story by ID
+     */
+    private static final String GET_STORY = "SELECT "
+            + StringUtils.join(STORY_FIELDS.values(), ",") 
+            + " FROM " + STORY_TABLE 
+            + " WHERE " + STORY_FIELDS.ID.toString() + "= ?"; 
+    
     
     /**
      * SQL to select all stories from the DB.  We will use this for testing and 
@@ -153,7 +168,7 @@ public class StoryDB
      * @param story  the story to add
      * @throws TaskTrackerException  if an error occurred during the add.
      */
-    public void addValue(Story story) throws TaskTrackerException
+    public void addStory(Story story) throws TaskTrackerException
     {
         try(Connection connection = this.openConnection())
         {
@@ -190,6 +205,95 @@ public class StoryDB
 //                    e.
 //                    
 //            }
+            throw new TaskTrackerException(e);
+        }
+    }
+    
+    
+    /**
+     * Attempts to delete a story from the stories database
+     * @param storyId  the id of the story to delete
+     * @throws TaskTrackerException  if an error occurred during the delete
+     */
+    public void deleteStory(String storyId) throws TaskTrackerException
+    {
+        try(Connection connection = this.openConnection())
+        {
+            //Get our insert SQL statement ready.  Using a prepared statement
+            //  protects us from SQL injection.
+            PreparedStatement deleteStatement = connection.prepareStatement(DELETE_STORY);
+            deleteStatement.setString(STORY_FIELDS.ID.getFieldNumber(), storyId);
+            
+            //Execute the statement
+            boolean isResultSet = deleteStatement.execute();
+            
+            //We don't expect a result set.
+            assert(!isResultSet) : "Was not expecting a result set from our DELETE FROM command.";
+            
+            //Thus it is an update count.
+            int updateCount = deleteStatement.getUpdateCount();
+            if(updateCount != 1)
+            {
+                throw new TaskTrackerException(
+                       String.format("Our update count was %d, but we expected 1.", 
+                                     updateCount));
+            }
+        }
+        catch(SQLException e)
+        {
+//            String message = Messages.getString(DBErrorAdd, story.Id);
+//            switch(e.getSQLState())
+//            {
+//                case SQL_ERROR_NULL_VALUE:
+//                    e.
+//                    
+//            }
+            throw new TaskTrackerException(e);
+        }
+    }
+    
+    
+    /**
+     * Selects a story based on the id of the story.
+     * @param storyId  the id of the story
+     * @return  the story matching the id.
+     * @throws TaskTrackerException  if there was a problem getting the story 
+     *              from the database.
+     */
+    public Story selectStory(String storyId) throws TaskTrackerException
+    {
+        try(Connection connection = this.openConnection())
+        {
+            //Get our insert SQL statement ready.  Using a prepared statement
+            //  protects us from SQL injection.
+            PreparedStatement queryStatement = connection.prepareStatement(GET_STORY);
+            queryStatement.setString(STORY_FIELDS.ID.getFieldNumber(), storyId);
+            
+            //Execute the statement
+            ResultSet results = queryStatement.executeQuery();
+            
+            Story story = null;
+            while(results.next())
+            {
+                //If story is not null, we got more than 1 story result.  This 
+                //  means there is something wrong with the DB set-up.
+                if(story != null)
+                {
+                    throw new TaskTrackerException(
+                                Messages.getString("DBTooManyResults", 
+                                                   "SELECT"));
+                }
+                
+                story = new Story();
+                story.Id = results.getString(STORY_FIELDS.ID.toString());
+                story.Points = results.getInt(STORY_FIELDS.POINTS.toString());
+                story.Priority = results.getInt(STORY_FIELDS.PRIORITY.toString());
+            }
+            
+            return story;
+        }
+        catch(SQLException e)
+        {
             throw new TaskTrackerException(e);
         }
     }

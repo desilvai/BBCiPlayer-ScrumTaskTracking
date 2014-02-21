@@ -44,18 +44,10 @@ public class Backlog implements IBacklog
         }
         
         
-        //Check that the ID is non-null and small enough to fit in the DB.
-        if(story.Id == null)
-        {
-            throw new TaskTrackerException(Messages.getString("StoryNullId"));
-        }
-        
-        if(story.Id.length() > MAX_ID_LENGTH)
-        {
-            throw new TaskTrackerException(Messages.getString("StoryIdTooLong", 
-                                                              MAX_ID_LENGTH, 
-                                                              story.Id.length()));
-        }
+        //TODO -- log exceptions.
+        //Check that the Story's Id is valid.  If it isn't, an exception is 
+        //  thrown.
+        checkId(story.Id);
         
         //NOTE:  We aren't checking if there is a negative priority.  This is 
         //      still valid as far as we are concerned.
@@ -64,7 +56,7 @@ public class Backlog implements IBacklog
         // Add the story to the backlog
         try
         {
-            this.storyDB.addValue(story);
+            this.storyDB.addStory(story);
         }
         catch(TaskTrackerException e)
         {
@@ -76,14 +68,29 @@ public class Backlog implements IBacklog
         }
     }
 
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public Story Remove(String id)
+    public Story Remove(String id) throws TaskTrackerException
     {
-        // TODO Auto-generated method stub
-        return null;
+        try
+        {
+            //Check that the id is valid.
+            checkId(id);
+            
+            //Get the story.  We will not return this until the delete succeeds.
+            Story story = this.storyDB.selectStory(id);
+            this.storyDB.deleteStory(id);
+            
+            return story;
+        }
+        catch(TaskTrackerException e)
+        {
+            //TODO -- Log the exception.
+            throw e;
+        }
     }
 
     /**
@@ -94,6 +101,36 @@ public class Backlog implements IBacklog
     {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    
+    
+    //-------------------------------------------------------------------------
+    //  HELPER METHODS
+    //-------------------------------------------------------------------------
+    /**
+     * Check that a story Id is valid with respect to the constraints we imposed
+     * on Story Ids for database storage.  These seem generally applicable (to 
+     * have a non-null id that is sufficiently short enough) regardless of 
+     * using database storage.  More information about how the Id is used is 
+     * required to fully address the constraints on the ids. 
+     * @param id  the story id to check
+     * @throws TaskTrackerException  if the id is invalid 
+     */
+    private static final void checkId(String id) throws TaskTrackerException
+    {
+        //Check that the ID is non-null and small enough to fit in the DB.
+        if(id == null)
+        {
+            throw new TaskTrackerException(Messages.getString("StoryNullId"));
+        }
+        
+        if(id.length() > MAX_ID_LENGTH)
+        {
+            throw new TaskTrackerException(Messages.getString("StoryIdTooLong", 
+                                                              MAX_ID_LENGTH, 
+                                                              id.length()));
+        }
     }
 
 }

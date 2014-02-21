@@ -136,11 +136,32 @@ public class BacklogTest extends TestUsingDB
 
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Remove(java.lang.String)}.
+     * @throws TaskTrackerException 
      */
     @Test
-    public void testRemove()
+    public void testRemove() throws TaskTrackerException
     {
-        fail("Not yet implemented");
+        String id = "TEST_ID for remove";
+        
+        //Test story
+        Story story = new Story();
+        story.Points = 5;
+        story.Priority = 5;
+        story.Id = id;
+        
+        Story originalStory = new Story(story);
+        
+        //Add it so we can remove it
+        this.backlog.Add(story);
+        
+        //Make sure it was added successfully
+        Assert.assertEquals(1, this.storyDB.getStoryCount());
+        
+        Story removedStory = this.backlog.Remove(id);
+        Assert.assertEquals(originalStory, removedStory);
+        
+        //Make sure it was removed successfully
+        Assert.assertEquals(0, this.storyDB.getStoryCount());
     }
 
     /**

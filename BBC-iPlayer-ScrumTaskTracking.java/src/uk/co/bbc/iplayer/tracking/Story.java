@@ -62,6 +62,13 @@ public class Story
     @Override
     public boolean equals(Object other)
     {
+        //If other is null, it cannot be equal to this.
+        if(other == null)
+        {
+            return false;
+        }
+        
+        //Are the objects the same type?
         Story that;
         try
         {
@@ -72,10 +79,27 @@ public class Story
             return false;
         }
         
-        if((this.Id == null && that.Id != null) || ! this.Id.equals(that.Id))
+        
+        //Check the Ids.  Two Ids are equal if they are both null.
+        if(this.Id == null)
         {
-            return false;
+            if(that.Id != null)
+            {
+                return false;
+            }
+            //else both are null
         }
+        else
+        {
+            if(! this.Id.equals(that.Id))
+            {
+                return false;
+            }
+            // else the ids are equal.
+        }
+        
+        
+        //Check the integer values.
         return this.Points == that.Points && this.Priority == that.Priority;
         
     }
