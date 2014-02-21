@@ -1,206 +1,155 @@
-///**
-// * Copyright (c) 2014, Ian J. De Silva
-// * All rights reserved.
-// * 
-// * Use, distribution, and modification of this work for any purpose is strictly
-// * prohibited without the express consent of the copyright holder except as 
-// * permitted by law.
-// */
-//package uk.co.bbc.iplayer.tracking;
-//
-//import static org.junit.Assert.*;
-//
-//import org.junit.After;
-//import org.junit.Before;
-//import org.junit.Test;
-//
-///**
-// * Tests the {@link Backlog} class based on the requirements.
-// */
-//public class BacklogTest
-//{
-//    private Backlog backlog;
-//
-//    /**
-//     * @throws java.lang.Exception
-//     */
-//    @Before
-//    public void setUp() throws Exception
-//    {
-//        //Create a new one each time to make sure that we are working with a 
-//        //  clean backlog instance.
-//        this.backlog = new Backlog();
-//    }
-//
-//    /**
-//     * @throws java.lang.Exception
-//     */
-//    @After
-//    public void tearDown() throws Exception
-//    {
-//        //This is just safer given the memory leaks of old.
-//        this.backlog = null;
-//    }
-//
-//    
-//    
-//    //=========================================================================
-//    //  TEST CASES
-//    //=========================================================================
-//    
-//    /*
-//     *-------------------------------------------------------------------------
-//     * TEST ADD
-//     *-------------------------------------------------------------------------
-//     * For testing a story's points on add, there are the following equivalence
-//     * classes:
-//     *  - Less than 0  (negative-values)
-//     *  - Greater than or Equal to 0  (non-negative-values)
-//     *  
-//     * We therefore for boundary-value testing, need the following test cases:
-//     *  - Points == MIN_INT     Expect: fail
-//     *  - Points == -100        Expect: fail 
-//     *  - Points == -1          Expect: fail
-//     *  - Points == 0           Expect: success
-//     *  - Points == 1           Expect: success  -- Only one of these are needed
-//     *  - Points == 50          Expect: success  --
-//     *  - Points == MAX_INT     Expect: success
-//     *-------------------------------------------------------------------------
-//     */
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
-//     * This checks that the story is not added when the point value is equal to
-//     * MIN_INT (low bound on the equivalence class). 
-//     */
-//    @Test
-//    public void testAdd_minInt()
-//    {
-//        Story story = createStoryWithGivenPoints(Integer.MIN_VALUE);
-//        this.backlog.Add(story);
-//        
-//        //TODO -- check that this failed inside the object.
-//        fail("Not yet implemented");
-//    }
-//    
-//    
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
-//     * This checks that the story is not added when the point value is a 
-//     * non-boundary value in the less-than-0 equivalence class. 
-//     */
-//    @Test
-//    public void testAdd_negativeNonBoundary()
-//    {
-//        Story story = createStoryWithGivenPoints(-100);
-//        this.backlog.Add(story);
-//        
-//        //TODO -- check that this failed inside the object.
-//        fail("Not yet implemented");
-//    }
-//    
-//    
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
-//     * This checks that the story is not added when the point value is a 
-//     * boundary value in the negative-values equivalence class. 
-//     */
-//    @Test
-//    public void testAdd_negativeBoundary()
-//    {
-//        Story story = createStoryWithGivenPoints(-1);
-//        this.backlog.Add(story);
-//        
-//        //TODO -- check that this failed inside the object.
-//        fail("Not yet implemented");
-//    }
-//    
-//    
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
-//     * This checks that the story is successfully added when the point value is 
-//     * a boundary value in the non-negative-values equivalence class. 
-//     */
-//    @Test
-//    public void testAdd_nonNegativeBoundary()
-//    {
-//        Story story = createStoryWithGivenPoints(0);
-//        this.backlog.Add(story);
-//        
-//        //TODO -- check that this succeeded inside the object.
-//        fail("Not yet implemented");
-//    }
-//    
-//    
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
-//     * This checks that the story is successfully added when the point value is 
-//     * a non-boundary value in the non-negative-values equivalence class. 
-//     */
-//    @Test
-//    public void testAdd_nonNegativeNonBoundary()
-//    {
-//        Story story = createStoryWithGivenPoints(1);
-//        this.backlog.Add(story);
-//        
-//        //TODO -- check that this succeeded inside the object.
-//        fail("Not yet implemented");
-//    }
-//    
-//    
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
-//     * This checks that the story is successfully added when the point value is 
-//     * a non-boundary value in the non-negative-values equivalence class. 
-//     */
-//    @Test
-//    public void testAdd_nonNegativeNonBoundary2()
-//    {
-//        Story story = createStoryWithGivenPoints(50);
-//        this.backlog.Add(story);
-//        
-//        //TODO -- check that this succeeded inside the object.
-//        fail("Not yet implemented");
-//    }
-//    
-//    
-//    
-//    
-//    
-//    
-//    //=========================================================================
-//    //  HELPER METHODS
-//    //=========================================================================
-//    /**
-//     * Creates a story with valid priority and the given number of points.
-//     * @param points  the points to set for the story.
-//     * @return  the newly created story.
-//     */
-//    private static final Story createStoryWithGivenPoints(int points)
-//    {
-//        Story story = new Story();
-//        story.Points = points;
-//        story.Priority = 1;
-//        
-//        return story;
-//    }
-//    
-//
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Remove(java.lang.String)}.
-//     */
-//    @Test
-//    public void testRemove()
-//    {
-//        fail("Not yet implemented");
-//    }
-//
-//    /**
-//     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
-//     */
-//    @Test
-//    public void testGetSprint()
-//    {
-//        fail("Not yet implemented");
-//    }
-//
-//}
+/**
+ * Copyright (c) 2014, Ian J. De Silva
+ * All rights reserved.
+ * 
+ * Use, distribution, and modification of this work for any purpose is strictly
+ * prohibited without the express consent of the copyright holder except as 
+ * permitted by law.
+ */
+package uk.co.bbc.iplayer.tracking;
+
+import static org.junit.Assert.fail;
+
+import java.sql.SQLException;
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import uk.co.bbc.iplayer.tracking.db.StoryDB;
+import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
+
+/**
+ * Tests the {@link Backlog} class based on the requirements.
+ */
+public class BacklogTest extends TestUsingDB
+{
+    //-------------------------------------------------------------------------
+    //  DATA MEMBERS
+    //-------------------------------------------------------------------------
+    /**
+     * The backlog under test.  We don't use an IBacklog here because we want to
+     * inspect the object.
+     */
+    private Backlog backlog;
+    
+    /**
+     * The database containing the stories
+     */
+    private StoryDB storyDB;
+
+    
+    
+    //-------------------------------------------------------------------------
+    //  TEST SET-UP / TEAR-DOWN
+    //-------------------------------------------------------------------------
+    /**
+     * Creates the database (in-memory). 
+     * @throws IllegalAccessException  if the DB driver could not be created.
+     * @throws InstantiationException  if the DB driver could not be created.
+     * @throws SQLException  if there is a problem connecting and creating the 
+     *                  DB.
+     */
+    @Before
+    @Override
+    public void setUp() throws InstantiationException,
+                               IllegalAccessException,
+                               SQLException
+    {
+        super.setUp();
+        this.backlog = new Backlog();
+        this.storyDB = new StoryDB();
+    }
+
+
+    /**
+     * Destroys the in-memory database.
+     * @throws SQLException  if we could not destroy the database.
+     */
+    @After
+    @Override
+    public void tearDown() throws SQLException
+    {
+        this.backlog = null;
+        this.storyDB = null;
+        super.tearDown();
+    }
+    
+    
+    
+    //-------------------------------------------------------------------------
+    //  TEST CASES
+    //-------------------------------------------------------------------------
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
+     * Checks that we cannot add two stories with the same id.
+     * @throws TaskTrackerException 
+     */
+    @Test
+    public void testAdd_duplicateIds() throws TaskTrackerException
+    {
+        Story story = new Story();
+        story.Points = 5;
+        story.Priority = 5;
+        story.Id = "TEST_ID";
+        
+        //Copy for later
+        Story expectedStory = new Story(story);
+        
+        this.backlog.Add(story);
+        
+        //Make sure it was added successfully
+        Assert.assertEquals(1, this.storyDB.getStoryCount());
+        
+        Story storyDup = new Story();
+        storyDup.Points = 2;
+        storyDup.Priority = 1;
+        storyDup.Id = story.Id;
+        
+        //Add second story with the same Id as the first.
+        try
+        {
+            this.backlog.Add(story);
+        }
+        catch(TaskTrackerException e)
+        {
+            //Make sure there is still only one story and it is the first one we
+            //  added (no update occurred)
+            List<Story> stories = this.storyDB.getAllStories();
+            Assert.assertEquals(1, stories.size());
+            
+            Story actualStory = stories.get(0);
+            Assert.assertEquals(expectedStory, actualStory);
+            
+            //Test completed successfully.
+            return;
+        }
+        
+        fail("Application should not have allowed us to add a second story "
+                + "with the same id as one in the DB.");
+    }
+    
+    
+
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Remove(java.lang.String)}.
+     */
+    @Test
+    public void testRemove()
+    {
+        fail("Not yet implemented");
+    }
+
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
+     */
+    @Test
+    public void testGetSprint()
+    {
+        fail("Not yet implemented");
+    }
+
+}
