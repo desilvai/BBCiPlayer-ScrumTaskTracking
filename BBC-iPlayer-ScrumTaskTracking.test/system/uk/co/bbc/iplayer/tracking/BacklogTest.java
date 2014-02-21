@@ -163,7 +163,19 @@ public class BacklogTest extends TestUsingDB
         //Make sure it was removed successfully
         Assert.assertEquals(0, this.storyDB.getStoryCount());
     }
+    
+    
 
+    /*
+     * Test cases for getSprint().
+     * - Can't fit all the high priority items in the sprint.  Should get the 
+     *      "right" set of high priority items.
+     * - Select lower priority if we can't fit a high priority item in the space
+     *      available.
+     * - Empty set if we have no stories that will fit in the sprint.
+     * - Empty space in sprint if not enough points in backlog to fill the 
+     *      sprint.
+     */
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
      */
