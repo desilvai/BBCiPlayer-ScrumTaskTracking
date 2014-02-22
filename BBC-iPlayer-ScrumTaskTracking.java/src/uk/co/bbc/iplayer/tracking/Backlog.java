@@ -8,6 +8,7 @@
  */
 package uk.co.bbc.iplayer.tracking;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.db.StoryDB;
@@ -38,7 +39,7 @@ public class Backlog implements IBacklog
         
         //Check story points are non-negative.  If they are negative, don't do
         //  the add.
-        if(story.Points < 0)
+        if(story.Points <= 0)
         {
             throw new TaskTrackerException(Messages.getString("StoryNegativePoints"));
         }
@@ -99,6 +100,26 @@ public class Backlog implements IBacklog
     @Override
     public List<Story> getSprint(int totalPointsAchievable)
     {
+        List<Story> stories = new ArrayList<>();
+        
+        //If the totalPointsAchievable is impossible (negative), return an 
+        //      empty list.
+        if(totalPointsAchievable < 0)
+        {
+            return stories;
+        }
+            
+        
+        /**
+         * OK, so the idea here is that we can formulate the problem as the 
+         * {0,1}-knapsack problem and get the highest possible value in the 
+         * sprint (in Scrum, we use priority as a proxy for how much value the 
+         * customer places on the story).  However, we need to finesse the 
+         * problem a little to make it work.  In the knapsack problem, each 
+         * item's value is positive, but our priorities are not.  To get around
+         * this, we can either set the 
+         */
+        
         // TODO Auto-generated method stub
         return null;
     }

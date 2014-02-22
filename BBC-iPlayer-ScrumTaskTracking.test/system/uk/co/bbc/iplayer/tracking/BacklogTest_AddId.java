@@ -97,7 +97,7 @@ public class BacklogTest_AddId extends TestUsingDB
      * The expected outcome of the test.  This is true if the test should pass,
      * or false otherwise.
      */
-    private boolean expectedResult;
+    private boolean expectSuccess;
     
     /**
      * The database containing the stories
@@ -112,13 +112,13 @@ public class BacklogTest_AddId extends TestUsingDB
     /**
      * Constructor for parameterized tests.
      * @param id  the Id of the story.
-     * @param expectedResults  the expected outcome of the test (true if the 
+     * @param expectSuccess  the expected outcome of the test (true if the 
      *      test should succeed, false otherwise).
      */
-    public BacklogTest_AddId(String id, boolean expectedResult)
+    public BacklogTest_AddId(String id, boolean expectSuccess)
     {
         this.id = id;
-        this.expectedResult = expectedResult;
+        this.expectSuccess = expectSuccess;
         
         //Create a new one each time to make sure that we are working with a 
         //  clean backlog instance.
@@ -137,7 +137,7 @@ public class BacklogTest_AddId extends TestUsingDB
      * This attempts to add a story that we created with the given id 
      * (all other parts of the story are valid) to the {@link IBacklog} object.
      * We then check for success or failure based on what we were told to expect
-     * (if {@link #expectedResult} is true, we expect success, otherwise we 
+     * (if {@link #expectSuccess} is true, we expect success, otherwise we 
      * expect failure).
      * @throws TaskTrackerException 
      */
@@ -159,7 +159,7 @@ public class BacklogTest_AddId extends TestUsingDB
         }
         catch(TaskTrackerException e)
         {
-            if(this.expectedResult)
+            if(this.expectSuccess)
             {
                 //We expected success, but didn't actually succeed
                 throw e;
@@ -186,7 +186,7 @@ public class BacklogTest_AddId extends TestUsingDB
         }
         
         //Check for success or failure.
-        if(!this.expectedResult)
+        if(!this.expectSuccess)
         {
             //Failure occurred.
             Assert.fail("Failed to catch a problem with adding a story with an"

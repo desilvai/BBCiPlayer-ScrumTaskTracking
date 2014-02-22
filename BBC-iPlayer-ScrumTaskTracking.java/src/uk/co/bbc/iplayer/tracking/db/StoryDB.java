@@ -142,6 +142,9 @@ public class StoryDB
             + " WHERE " + STORY_FIELDS.ID.toString() + "= ?"; 
     
     
+    //SELECT * FROM Stories WHERE 
+    
+    
     /**
      * SQL to select all stories from the DB.  We will use this for testing and 
      * debugging.

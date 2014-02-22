@@ -20,12 +20,11 @@ import org.junit.runners.Parameterized.Parameters;
 
 import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
-import uk.co.bbc.iplayer.tracking.messages.Messages;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
 /**
- * This tests the add function of the IBacklog implementation with respect to 
- * the point values of the stories to be added. 
+ * This tests the getSprint method's input checking capabilities before it tries
+ * to populate a list.. 
  * 
  * For testing a story's points on add, there are the following equivalence
  * classes (assuming we cannot have negative point values -- See github question 
@@ -35,17 +34,16 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  *  
  * We therefore for boundary-value testing, need the following test cases:
  *  - Points == MIN_INT     Expect: fail
- *  - Points == -100        Expect: fail     -- Only one of these are needed
- *  - Points == -1          Expect: fail     --
- *  - Points == 0           Expect: fail
- *  - Points == 1           Expect: success
- *  - Points == 2           Expect: success  -- Only one of these are needed
+ *  - Points == -100        Expect: fail 
+ *  - Points == -1          Expect: fail
+ *  - Points == 0           Expect: success
+ *  - Points == 1           Expect: success  -- Only one of these are needed
  *  - Points == 50          Expect: success  --
  *  - Points == MAX_INT     Expect: success
  *
  */
 @RunWith(value = Parameterized.class)
-public class BacklogTest_AddPoints extends TestUsingDB
+public class BacklogTest_GetSprint extends TestUsingDB
 {
     /**
      * The data for boundary value testing of the points part of the story to be
@@ -60,9 +58,8 @@ public class BacklogTest_AddPoints extends TestUsingDB
                     {Integer.MIN_VALUE, false},
                     {-100,              false},
                     {-1,                false},
-                    {0,                 false},
+                    {0,                 true},
                     {1,                 true},
-                    {2,                 true},
                     {50,                true},
                     {Integer.MAX_VALUE, true}
                 };
@@ -80,13 +77,13 @@ public class BacklogTest_AddPoints extends TestUsingDB
     private Backlog backlog;
     
     /**
-     * The story's points
+     * The size of the sprint to plan.
      */
-    private int points;
+    private int sprintSize;
     
     /**
      * The expected outcome of the test.  This is true if the test should pass,
-     * or false otherwise.
+     * (or really, result in a positive outcome) or false otherwise.
      */
     private boolean expectSuccess;
     
@@ -102,13 +99,13 @@ public class BacklogTest_AddPoints extends TestUsingDB
     //-------------------------------------------------------------------------
     /**
      * Constructor for parameterized tests.
-     * @param points  the number of points for the story.
+     * @param sprintSize  the size of the sprint to plan.
      * @param expectSuccess  the expected outcome of the test (true if the 
      *      test should succeed, false otherwise).
      */
-    public BacklogTest_AddPoints(int points, boolean expectSuccess)
+    public BacklogTest_GetSprint(int sprintSize, boolean expectSuccess)
     {
-        this.points = points;
+        this.sprintSize = sprintSize;
         this.expectSuccess = expectSuccess;
         
         //Create a new one each time to make sure that we are working with a 
@@ -124,65 +121,52 @@ public class BacklogTest_AddPoints extends TestUsingDB
     //-------------------------------------------------------------------------
     /**
      * Test method for 
-     * {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
-     * This attempts to add a story that we created with the given point value 
-     * (all other parts of the story are valid) to the {@link IBacklog} object.
-     * We then check for success or failure based on what we were told to expect
-     * (if {@link #expectSuccess} is true, we expect success, otherwise we 
-     * expect failure).
-     * @throws TaskTrackerException 
+     * {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
+     * 
+     * This allows us to verify that the sprint size is being checked before 
+     * trying to assemble a sprint.
+     * @throws TaskTrackerException   
      */
     @Test
-    public void testAdd() throws TaskTrackerException
+    public void testGetSprint() throws TaskTrackerException
     {
-        //The test input.  Only the points varies between executions.
-        Story story = new Story();
-        story.Points = this.points;
-        story.Priority = 1;
-        story.Id = "TEST_ID";
+        //Initialize the test case by adding the given stories to the database.
+        List<Story> stories = Arrays.asList(new Story("Story 1",  0, 3),
+                                            new Story("Story 2",  1, 3),
+                                            new Story("Story 3",  1, 2),
+                                            new Story("Story 4", 40, 1));
         
-        //We need this for comparing later.
-        Story expected = new Story(story);
-        
-        try
+        for(Story story : stories)
         {
-            this.backlog.Add(story);
-        }
-        catch(TaskTrackerException e)
-        {
-            if(this.expectSuccess)
-            {
-                //We expected success, but didn't actually succeed
-                throw e;
-            }
-            
-            //else
-            //Check that we got the right error message
-            String expectedMessage = Messages.getString("StoryNegativePoints"); 
-            Assert.assertEquals(expectedMessage, e.getMessage());
-            
-            //Check that the DB is still empty.
-            Assert.assertEquals(0, this.storyDB.getStoryCount());
-            return;
+            //We skip add here since we don't need the extra checks and we 
+            //  aren't testing that.
+            this.storyDB.addStory(story);
         }
         
-        //Check for success or failure.
-        if(!this.expectSuccess)
+
+        //Plan an iteration
+        List<Story> sprintPlan = this.backlog.getSprint(this.sprintSize);
+        
+        Assert.assertNotNull(sprintPlan);
+        
+        if(this.expectSuccess)
         {
-            //Failure occurred.
-            Assert.fail("Failed to catch a problem with adding a story with "
-                    + "point value " + this.points + " to the database.");
+            //I'm only checking the size, not the exact contents of the plan.
+            //  Complete checking should be done elsewhere.
+            Assert.assertTrue("The sprint plan should have been positive, "
+                                  + "instead it was " + sprintPlan.size() + ".", 
+                              sprintPlan.size() > 0);
         }
-        
-        //else success
-        Assert.assertEquals(1, this.storyDB.getStoryCount());
-        
-        
-        List<Story> stories = this.storyDB.getAllStories();
-        Assert.assertEquals(1, stories.size());
-        
-        Story actualStory = stories.get(0);
-        Assert.assertEquals(expected, actualStory);
+        else
+        {
+            //expect that it returned 0 (the negative case -- or failure case, 
+            //  but this is misleading terminology)
+            Assert.assertEquals("The plan for a sprint of size "
+                                        + this.sprintSize
+                                        + " should have been empty.",
+                                0,
+                                sprintPlan.size());
+        }
     }
 
 }

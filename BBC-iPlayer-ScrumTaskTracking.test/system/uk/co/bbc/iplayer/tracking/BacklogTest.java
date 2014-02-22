@@ -11,6 +11,7 @@ package uk.co.bbc.iplayer.tracking;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.After;
@@ -178,11 +179,55 @@ public class BacklogTest extends TestUsingDB
      */
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
+     * 
+     * This attempts to plan something when the database is empty and gets back
+     * an empty list.
+     * @throws TaskTrackerException  if there was a problem setting up the story
+     *                  database.
      */
     @Test
-    public void testGetSprint()
+    public void testGetSprint_noStories() throws TaskTrackerException
     {
-        fail("Not yet implemented");
+        //Plan an iteration
+        List<Story> sprintPlan = this.backlog.getSprint(0);
+        
+        Assert.assertNotNull(sprintPlan);
+        Assert.assertEquals("The plan for a sprint of size 0 should have been empty.", 
+                            0, 
+                            sprintPlan.size());
+    }
+    
+    
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
+     * 
+     * This initializes the database with stories that will not fit in a sprint 
+     * and results in an empty sprint list.
+     * @throws TaskTrackerException  if there was a problem setting up the story
+     *                  database.
+     */
+    @Test
+    public void testGetSprint_noStoriesFit() throws TaskTrackerException
+    {
+        //Initialize the test case by adding the given stories to the database.
+        List<Story> stories = Arrays.asList(new Story("Story 1", 40, 2),
+                                            new Story("Story 2", 80, 2));
+        
+        for(Story story : stories)
+        {
+            //We skip add here since we don't need the extra checks and we 
+            //  aren't testing that.
+            this.storyDB.addStory(story);
+        }
+        
+
+        //Plan an iteration
+        List<Story> sprintPlan = this.backlog.getSprint(20);
+        
+        Assert.assertNotNull(sprintPlan);
+        Assert.assertEquals("The plan for a sprint of size 20 should have been empty.", 
+                            0, 
+                            sprintPlan.size());
     }
 
 }

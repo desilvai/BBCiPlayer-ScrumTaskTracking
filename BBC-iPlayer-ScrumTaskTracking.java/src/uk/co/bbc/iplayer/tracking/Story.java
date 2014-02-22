@@ -37,10 +37,24 @@ public class Story
     
     
     /**
-     * Constructor
+     * Default Constructor
      */
     public Story()
     {
+    }
+    
+    
+    /**
+     * Initializing Constructor
+     * @param id  the unique id of the story
+     * @param points  the estimate of the story's difficulty
+     * @param priority  the priority of the story
+     */
+    public Story(String id, int points, int priority)
+    {
+        this.Id = id;
+        this.Points = points;
+        this.Priority = priority;
     }
     
     
