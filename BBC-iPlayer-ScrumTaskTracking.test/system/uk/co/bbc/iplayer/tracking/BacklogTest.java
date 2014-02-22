@@ -188,12 +188,17 @@ public class BacklogTest extends TestUsingDB
     @Test
     public void testGetSprint_noStories() throws TaskTrackerException
     {
+        int sprintSize = Integer.MAX_VALUE;
+        
         //Plan an iteration
-        List<Story> sprintPlan = this.backlog.getSprint(0);
+        List<Story> sprintPlan = this.backlog.getSprint(sprintSize);
         
         Assert.assertNotNull(sprintPlan);
-        Assert.assertEquals("The plan for a sprint of size 0 should have been empty.", 
-                            0, 
+        Assert.assertEquals("The plan for a sprint of size "
+                                    + sprintSize
+                                    + " should have been empty since the "
+                                    + "backlog is empty.",
+                            0,
                             sprintPlan.size());
     }
     

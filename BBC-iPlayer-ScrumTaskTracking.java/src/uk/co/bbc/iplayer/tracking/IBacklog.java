@@ -24,7 +24,10 @@ public interface IBacklog
      *      allows us to optimize the solution and if it is 0, can't you combine
      *      it with other stories so it is actually accounted for?) and that
      *      Story.Priority can be duplicated among the set of added stories
-     *      (github question 2).  Story Ids must be unique.
+     *      (github question 2).  We assume priorities are strictly positive
+     *      because it makes more sense to users who might use a tool to invoke
+     *      the webservice and it allows us to easily find the optimal sprint 
+     *      composition.  Story Ids must be unique.
      * @throws TaskTrackerException  if there was a problem adding the story to 
      *      the product backlog.
      */

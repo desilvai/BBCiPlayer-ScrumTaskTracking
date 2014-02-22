@@ -28,10 +28,9 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  * the point values of the stories to be added. 
  * 
  * For testing a story's points on add, there are the following equivalence
- * classes (assuming we cannot have negative point values -- See github question 
- * #1):
- *  - Less than 0  (negative-values)
- *  - Greater than or Equal to 0  (non-negative-values)
+ * classes (assuming we cannot have non-positive point values):
+ *  - Less than or equal to 0  (non-positive values)
+ *  - Greater than 0  (positive-values)
  *  
  * We therefore for boundary-value testing, need the following test cases:
  *  - Points == MIN_INT     Expect: fail
@@ -158,7 +157,7 @@ public class BacklogTest_AddPoints extends TestUsingDB
             
             //else
             //Check that we got the right error message
-            String expectedMessage = Messages.getString("StoryNegativePoints"); 
+            String expectedMessage = Messages.getString("StoryNonPositivePoints"); 
             Assert.assertEquals(expectedMessage, e.getMessage());
             
             //Check that the DB is still empty.

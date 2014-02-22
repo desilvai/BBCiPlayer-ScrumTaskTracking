@@ -35,23 +35,12 @@ public class Backlog implements IBacklog
     @Override
     public void Add(Story story) throws TaskTrackerException
     {
-        // Check that the story is valid.  
-        
-        //Check story points are non-negative.  If they are negative, don't do
-        //  the add.
-        if(story.Points <= 0)
-        {
-            throw new TaskTrackerException(Messages.getString("StoryNegativePoints"));
-        }
-        
-        
         //TODO -- log exceptions.
-        //Check that the Story's Id is valid.  If it isn't, an exception is 
-        //  thrown.
+        //Check that the fields of the story are valid.  If they aren't, an 
+        //  exception is thrown.
         checkId(story.Id);
-        
-        //NOTE:  We aren't checking if there is a negative priority.  This is 
-        //      still valid as far as we are concerned.
+        checkPointValue(story.Points);
+        checkPriorityValue(story.Priority);
         
         
         // Add the story to the backlog
@@ -102,10 +91,15 @@ public class Backlog implements IBacklog
     {
         List<Story> stories = new ArrayList<>();
         
-        //If the totalPointsAchievable is impossible (negative), return an 
+        //If the totalPointsAchievable is impossible (non-positive), return an 
         //      empty list.
-        if(totalPointsAchievable < 0)
+        try
         {
+            checkPointValue(totalPointsAchievable);
+        }
+        catch(TaskTrackerException e)
+        {
+            //Don't care about the message since it can only mean one thing.
             return stories;
         }
             
@@ -151,6 +145,40 @@ public class Backlog implements IBacklog
             throw new TaskTrackerException(Messages.getString("StoryIdTooLong", 
                                                               MAX_ID_LENGTH, 
                                                               id.length()));
+        }
+    }
+    
+    
+    /**
+     * Check that a story's point value is valid with respect to the constraints
+     * we imposed on the point values (point values are strictly positive).
+     * @param points  the point value to check
+     * @throws TaskTrackerException  if the point value is invalid (it is 
+     *                  non-positive).
+     */
+    private static final void checkPointValue(int points) 
+            throws TaskTrackerException
+    {
+        if(points <= 0)
+        {
+            throw new TaskTrackerException(Messages.getString("StoryNonPositivePoints"));
+        }
+    }
+    
+    
+    /**
+     * Check that a story's priority is valid with respect to the constraints
+     * we imposed on the priorities (priorities are strictly positive).
+     * @param priority  the priority to check
+     * @throws TaskTrackerException  if the priority is invalid (it is 
+     *                  non-positive).
+     */
+    private static final void checkPriorityValue(int priority) 
+            throws TaskTrackerException
+    {
+        if(priority <= 0)
+        {
+            throw new TaskTrackerException(Messages.getString("StoryNonPositivePriority"));
         }
     }
 
