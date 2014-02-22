@@ -119,7 +119,7 @@ public class BacklogTest extends TestUsingDB
         {
             //Make sure there is still only one story and it is the first one we
             //  added (no update occurred)
-            List<Story> stories = this.storyDB.getAllStories();
+            List<Story> stories = this.storyDB.getAllStoriesInPriorityOrder();
             Assert.assertEquals(1, stories.size());
             
             Story actualStory = stories.get(0);

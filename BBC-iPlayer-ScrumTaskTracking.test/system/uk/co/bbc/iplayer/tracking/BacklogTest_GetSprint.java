@@ -20,6 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.messages.Messages;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
 /**
@@ -27,20 +28,22 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  * to populate a list.. 
  * 
  * For testing a story's points on add, there are the following equivalence
- * classes (assuming we cannot have negative point values -- See github question 
- * #1):
- *  - Less than 0  (negative-values)
- *  - Greater than or Equal to 0  (non-negative-values)
+ * classes (assuming we cannot have non-positive point values and we remain 
+ * below MAX_INT):
+ *  - Less than or equal to 0  (non-positive values)
+ *  - Greater than 0 but less than MAX_INT  (positive-values)
+ *  - MAX_INT                   (too big values)
  *  
  * We therefore for boundary-value testing, need the following test cases:
- *  - Points == MIN_INT     Expect: fail
- *  - Points == -100        Expect: fail 
- *  - Points == -1          Expect: fail
- *  - Points == 0           Expect: success
- *  - Points == 1           Expect: success  -- Only one of these are needed
- *  - Points == 50          Expect: success  --
- *  - Points == MAX_INT     Expect: success
- *
+ *  - Points == MIN_INT      Expect: fail
+ *  - Points == -100         Expect: fail     -- Only one of these are needed
+ *  - Points == -1           Expect: fail     --
+ *  - Points == 0            Expect: fail
+ *  - Points == 1            Expect: success
+ *  - Points == 2            Expect: success  -- Only one of these are needed
+ *  - Points == 50           Expect: success  --
+ *  - Points == MAX_INT - 1  Expect: fail
+ *  - Points == MAX_INT      Expect: fail
  */
 @RunWith(value = Parameterized.class)
 public class BacklogTest_GetSprint extends TestUsingDB
@@ -55,13 +58,15 @@ public class BacklogTest_GetSprint extends TestUsingDB
     {
         Object[][] data = new Object[][]
                 {
-                    {Integer.MIN_VALUE, false},
-                    {-100,              false},
-                    {-1,                false},
-                    {0,                 false},
-                    {1,                 true},
-                    {50,                true},
-                    {Integer.MAX_VALUE, true}
+                    {Integer.MIN_VALUE,     false},
+                    {-100,                  false},
+                    {-1,                    false},
+                    {0,                     false},
+                    {1,                     true},
+                    {2,                     true},
+                    {50,                    true},
+                    {Integer.MAX_VALUE - 1, true},
+                    {Integer.MAX_VALUE,     false}
                 };
         return Arrays.asList(data);
     }
@@ -145,28 +150,41 @@ public class BacklogTest_GetSprint extends TestUsingDB
         
 
         //Plan an iteration
-        List<Story> sprintPlan = this.backlog.getSprint(this.sprintSize);
+        List<Story> sprintPlan;
+        try
+        {
+             sprintPlan = this.backlog.getSprint(this.sprintSize);
+        }
+        catch(TaskTrackerException e)
+        {
+            if(this.expectSuccess)
+            {
+                //We expected the call to succeed, but it didn't.  Rethrow the
+                //      exception.
+                throw e;
+            }
+            
+            //else
+            //Check that we got the right error message
+            String expectedMessage = Messages.getString("StoryNonPositivePoints");
+            Assert.assertEquals(expectedMessage, e.getMessage());
+            return;
+        }
         
+        if(!this.expectSuccess)
+        {
+            Assert.fail("Failed to catch a problem with planning a sprint "
+                    + "with an invalid sprint size.");
+        }
+        
+        //The call was a success and I expected as much.
         Assert.assertNotNull(sprintPlan);
         
-        if(this.expectSuccess)
-        {
-            //I'm only checking the size, not the exact contents of the plan.
-            //  Complete checking should be done elsewhere.
-            Assert.assertTrue("The sprint plan should have been positive, "
-                                  + "instead it was " + sprintPlan.size() + ".", 
-                              sprintPlan.size() > 0);
-        }
-        else
-        {
-            //expect that it returned 0 (the negative case -- or failure case, 
-            //  but this is misleading terminology)
-            Assert.assertEquals("The plan for a sprint of size "
-                                        + this.sprintSize
-                                        + " should have been empty.",
-                                0,
-                                sprintPlan.size());
-        }
+        //I'm only checking the size, not the exact contents of the plan.
+        //  Complete checking should be done elsewhere.
+        Assert.assertTrue("The sprint plan should have been positive, "
+                              + "instead it was " + sprintPlan.size() + ".", 
+                          sprintPlan.size() > 0);
     }
 
 }

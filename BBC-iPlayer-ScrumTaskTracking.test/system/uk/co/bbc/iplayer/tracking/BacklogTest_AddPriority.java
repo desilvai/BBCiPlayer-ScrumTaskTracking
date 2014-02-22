@@ -177,7 +177,7 @@ public class BacklogTest_AddPriority extends TestUsingDB
         Assert.assertEquals(1, this.storyDB.getStoryCount());
         
         
-        List<Story> stories = this.storyDB.getAllStories();
+        List<Story> stories = this.storyDB.getAllStoriesInPriorityOrder();
         Assert.assertEquals(1, stories.size());
         
         Story actualStory = stories.get(0);

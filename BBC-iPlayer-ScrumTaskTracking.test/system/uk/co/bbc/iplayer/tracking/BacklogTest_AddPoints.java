@@ -30,17 +30,19 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  * For testing a story's points on add, there are the following equivalence
  * classes (assuming we cannot have non-positive point values):
  *  - Less than or equal to 0  (non-positive values)
- *  - Greater than 0  (positive-values)
+ *  - Greater than 0 but less than MAX_INT  (positive-values)
+ *  - MAX_INT                   (too big values)
  *  
  * We therefore for boundary-value testing, need the following test cases:
- *  - Points == MIN_INT     Expect: fail
- *  - Points == -100        Expect: fail     -- Only one of these are needed
- *  - Points == -1          Expect: fail     --
- *  - Points == 0           Expect: fail
- *  - Points == 1           Expect: success
- *  - Points == 2           Expect: success  -- Only one of these are needed
- *  - Points == 50          Expect: success  --
- *  - Points == MAX_INT     Expect: success
+ *  - Points == MIN_INT      Expect: fail
+ *  - Points == -100         Expect: fail     -- Only one of these are needed
+ *  - Points == -1           Expect: fail     --
+ *  - Points == 0            Expect: fail
+ *  - Points == 1            Expect: success
+ *  - Points == 2            Expect: success  -- Only one of these are needed
+ *  - Points == 50           Expect: success  --
+ *  - Points == MAX_INT - 1  Expect: fail
+ *  - Points == MAX_INT      Expect: fail
  *
  */
 @RunWith(value = Parameterized.class)
@@ -56,14 +58,15 @@ public class BacklogTest_AddPoints extends TestUsingDB
     {
         Object[][] data = new Object[][]
                 {
-                    {Integer.MIN_VALUE, false},
-                    {-100,              false},
-                    {-1,                false},
-                    {0,                 false},
-                    {1,                 true},
-                    {2,                 true},
-                    {50,                true},
-                    {Integer.MAX_VALUE, true}
+                    {Integer.MIN_VALUE,     false},
+                    {-100,                  false},
+                    {-1,                    false},
+                    {0,                     false},
+                    {1,                     true},
+                    {2,                     true},
+                    {50,                    true},
+                    {Integer.MAX_VALUE - 1, true},
+                    {Integer.MAX_VALUE,     false}
                 };
         return Arrays.asList(data);
     }
@@ -177,7 +180,7 @@ public class BacklogTest_AddPoints extends TestUsingDB
         Assert.assertEquals(1, this.storyDB.getStoryCount());
         
         
-        List<Story> stories = this.storyDB.getAllStories();
+        List<Story> stories = this.storyDB.getAllStoriesInPriorityOrder();
         Assert.assertEquals(1, stories.size());
         
         Story actualStory = stories.get(0);

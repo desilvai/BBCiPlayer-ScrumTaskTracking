@@ -8,11 +8,11 @@
  */
 package uk.co.bbc.iplayer.tracking;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.knapsack.KnapsackProblemSolver;
 import uk.co.bbc.iplayer.tracking.messages.Messages;
 
 /**
@@ -87,21 +87,14 @@ public class Backlog implements IBacklog
      * {@inheritDoc}
      */
     @Override
-    public List<Story> getSprint(int totalPointsAchievable)
+    public List<Story> getSprint(int totalPointsAchievable) throws TaskTrackerException
     {
-        List<Story> stories = new ArrayList<>();
+        //TODO -- log errors 
         
-        //If the totalPointsAchievable is impossible (non-positive), return an 
-        //      empty list.
-        try
-        {
-            checkPointValue(totalPointsAchievable);
-        }
-        catch(TaskTrackerException e)
-        {
-            //Don't care about the message since it can only mean one thing.
-            return stories;
-        }
+        //If the totalPointsAchievable is impossible (non-positive), throw an
+        //  exception.  This indicates something is wrong rather than the 
+        //  value is correct but we didn't find anything.
+        checkPointValue(totalPointsAchievable);
             
         
         /**
@@ -113,9 +106,13 @@ public class Backlog implements IBacklog
          * item's value is positive, but our priorities are not.  To get around
          * this, we can either set the 
          */
+        //Ordered stories is never null.
+        List<Story> orderedStories = this.storyDB.getAllStoriesInPriorityOrder();
         
-        // TODO Auto-generated method stub
-        return null;
+        long[][] solutionTable = KnapsackProblemSolver.setUpTable(orderedStories, 
+                                                                  totalPointsAchievable);
+        return KnapsackProblemSolver.getOptimalSolution(solutionTable, 
+                                                        orderedStories);
     }
     
     
@@ -162,6 +159,12 @@ public class Backlog implements IBacklog
         if(points <= 0)
         {
             throw new TaskTrackerException(Messages.getString("StoryNonPositivePoints"));
+        }
+        
+        if(points == Integer.MAX_VALUE)
+        {
+            throw new TaskTrackerException(Messages.getString("StoryPointsTooBig", 
+                                                              Integer.MAX_VALUE));
         }
     }
     

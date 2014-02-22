@@ -104,6 +104,18 @@ public class StoryDB
         }
     }
     
+    
+    /**
+     * The database's table's object id (the primary key in the table).  This
+     * field also happens to capture the order in which the stories were added  
+     * to the table.
+     */
+    public static final String STORY_TABLE_PRIMARY_KEY = "OID";
+    
+    
+    /**
+     * The size of the ID field in the database.
+     */
     public static final int ID_FIELD_SIZE = Backlog.MAX_ID_LENGTH;
     
     
@@ -142,18 +154,16 @@ public class StoryDB
             + " WHERE " + STORY_FIELDS.ID.toString() + "= ?"; 
     
     
-    //SELECT * FROM Stories WHERE 
-    
-    
     /**
-     * SQL to select all stories from the DB.  We will use this for testing and 
-     * debugging.
+     * SQL to select all stories from the DB.  This list will be returned in
+     * priority order (from lowest number to highest) with ties ordered by age 
+     * in database.
      */
     private static final String GET_ALL_STORIES = "SELECT " 
             + StringUtils.join(STORY_FIELDS.values(), ",") 
             + " FROM " + STORY_TABLE 
-            + " ORDER BY " + STORY_FIELDS.PRIORITY.toString() + "," 
-            + STORY_FIELDS.POINTS.toString() + " DESC";
+            + " ORDER BY " + STORY_FIELDS.PRIORITY.toString() + " ASC," 
+            + StoryDB.STORY_TABLE_PRIMARY_KEY + " ASC";
     
     
     /**
@@ -303,10 +313,12 @@ public class StoryDB
     
     
     /**
-     * Gets a list of all stories in the stories database
+     * Gets a list of all stories in the stories database ordered by priority 
+     * (low number to high number) then the table's primary key (in insertion 
+     * order).
      * @throws TaskTrackerException  if an error occurred during the retrieval.
      */
-    public List<Story> getAllStories() throws TaskTrackerException
+    public List<Story> getAllStoriesInPriorityOrder() throws TaskTrackerException
     {
         try(Connection connection = this.openConnection())
         {

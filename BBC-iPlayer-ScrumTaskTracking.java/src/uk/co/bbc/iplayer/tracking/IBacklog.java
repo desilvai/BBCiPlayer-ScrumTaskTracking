@@ -55,6 +55,8 @@ public interface IBacklog
      *      in the sprint.
      * @return  a list of Stories in the backlog, ordered by business priority, 
      *      given the totalPointsAchieveable in the sprint
+     * @throws TaskTrackerException  if there was a problem planning out the 
+     *      sprint.
      */
-    public List<Story> getSprint(int totalPointsAchievable);
+    public List<Story> getSprint(int totalPointsAchievable) throws TaskTrackerException;
 }
