@@ -1,0 +1,59 @@
+<project name="TaskTracking" default="dist" basedir=".">
+    <description>
+        Builds the TaskTracking software.       
+    </description>
+    
+    <!-- set global properties for this build -->
+	<property file="build.common.properties" />
+	<property file="build.properties" />
+    
+    <path id="project.classpath">
+        <pathelement path="${classpath}" />
+    </path>
+    
+    
+    
+    <target name="_init">
+        <tstamp />
+    	
+    	<echo>"ANT VERSION : ${ant.version}"</echo>
+        <echo>"JAVA VERSION: ${ant.java.version}"</echo>
+        
+        <!-- DEBUG INFO -->
+        <!--
+        <echoproperties/>
+        
+        <pathconvert property="classpathProp" refid="project.classpath"/>
+
+        <echo>Classpath is ${classpathProp}</echo> 
+        -->
+    </target>
+    
+    
+    <!-- Compile the java code from ${dir.src} into ${dir.bin} -->
+    <target name="compile" depends="_init" description="compile the source " >
+    	<mkdir dir="${dir.bin}" />
+    	
+        <!--Build the project-->
+        <javac includeantruntime="false" srcdir="${dir.src}" destdir="${dir.bin}">
+            <classpath refid="project.classpath" />
+        </javac>
+    </target>
+    
+    
+    <!--Build the program as a JAR file.-->
+    <target name="dist" depends="compile" description="generate the jar file" >
+        <!-- Create the distribution directory -->
+        <mkdir dir="${dir.dist}"/>
+
+        <!-- Put everything in ${dir.bin} into the MyProject-${DSTAMP}.jar file -->
+        <jar jarfile="${dir.dist}/${jar.name}" basedir="${dir.bin}"/>
+    </target>
+    
+    
+    <!-- Delete the generated directories -->
+    <target name="clean"  description="clean up" >
+       <delete dir="${dir.bin}"/>
+       <delete dir="${dir.dist}"/>
+    </target>
+</project>
