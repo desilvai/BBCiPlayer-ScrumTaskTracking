@@ -6,7 +6,7 @@
  * prohibited without the express consent of the copyright holder except as 
  * permitted by law.
  */
-package uk.co.bbc.iplayer.tracking.db;
+package uk.co.bbc.iplayer.tracking.impl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import uk.co.bbc.iplayer.tracking.Story;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.impl.StoryDB;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
 /**
@@ -25,7 +26,7 @@ public class StoryDBTest extends TestUsingDB
 {
 
     /**
-     * Test method for {@link uk.co.bbc.iplayer.tracking.db.StoryDB#getAllStoriesInPriorityOrder()}.
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.StoryDB#getAllStoriesInPriorityOrder()}.
      * 
      * Tests that we get the results ordered first by priority (low number to 
      * high number) then by age in the database (low to high).

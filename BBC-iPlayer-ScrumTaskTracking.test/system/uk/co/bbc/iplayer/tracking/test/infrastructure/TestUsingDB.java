@@ -18,8 +18,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.apache.derby.jdbc.EmbeddedDriver;
 
-import uk.co.bbc.iplayer.tracking.db.StoryDB;
-import uk.co.bbc.iplayer.tracking.db.StoryDB.STORY_FIELDS;
+import uk.co.bbc.iplayer.tracking.impl.StoryDB;
+import uk.co.bbc.iplayer.tracking.impl.StoryDB.STORY_FIELDS;
 
 
 /**

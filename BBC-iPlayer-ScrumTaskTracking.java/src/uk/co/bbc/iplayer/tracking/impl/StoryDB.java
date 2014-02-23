@@ -6,7 +6,7 @@
  * prohibited without the express consent of the copyright holder except as 
  * permitted by law.
  */
-package uk.co.bbc.iplayer.tracking.db;
+package uk.co.bbc.iplayer.tracking.impl;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import uk.co.bbc.iplayer.tracking.Backlog;
 import uk.co.bbc.iplayer.tracking.Story;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
 import uk.co.bbc.iplayer.tracking.messages.Messages;

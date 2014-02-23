@@ -18,8 +18,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.impl.Backlog;
+import uk.co.bbc.iplayer.tracking.impl.StoryDB;
 import uk.co.bbc.iplayer.tracking.messages.Messages;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
@@ -133,7 +134,7 @@ public class BacklogTest_AddId extends TestUsingDB
     //-------------------------------------------------------------------------
     /**
      * Test method for 
-     * {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
+     * {@link uk.co.bbc.iplayer.tracking.impl.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
      * This attempts to add a story that we created with the given id 
      * (all other parts of the story are valid) to the {@link IBacklog} object.
      * We then check for success or failure based on what we were told to expect

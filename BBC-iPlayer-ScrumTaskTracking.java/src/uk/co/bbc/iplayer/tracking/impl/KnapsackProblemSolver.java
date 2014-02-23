@@ -6,10 +6,10 @@
  * prohibited without the express consent of the copyright holder except as 
  * permitted by law.
  */
-package uk.co.bbc.iplayer.tracking.knapsack;
+package uk.co.bbc.iplayer.tracking.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.Story;
@@ -23,23 +23,35 @@ import uk.co.bbc.iplayer.tracking.Story;
  */
 public class KnapsackProblemSolver
 {
-//    /**
-//     * Contains the knapsack problem solution path and optimal value.
-//     */
-//    private int[][] solutionTable;
-//    
-//    /**
-//     * The set of stories to consider when solving the knapsack problem.
-//     */
-//    private List<Story> storiesToConsider;
-
-    
     /**
      * 
      */
-    public KnapsackProblemSolver()
+    private KnapsackProblemSolver()
     {
-        // TODO Auto-generated constructor stub
+    }
+    
+    
+    /**
+     * Finds the optimal set of stories that fit in a sprint (optimal being the
+     * set of stories with the highest possible priority that will fit in the 
+     * sprint).
+     * @param stories  the set of stories to consider
+     * @param sprintCapacity  the capacity of the sprint.
+     * @return  the set of stories that maximizes the value to the customer (the
+     *          highest possible set of priorities)
+     */
+    public static List<Story> solve(List<Story> stories, 
+                                    int sprintCapacity)
+    {
+        long[][] solutionTable = KnapsackProblemSolver.setUpTable(stories, 
+                                                                  sprintCapacity);
+        List<Story> solution = KnapsackProblemSolver.getOptimalSolution(solutionTable, 
+                                                                        stories);
+        
+        //Reverse the order of the list so the highest priority stories come first.
+        Collections.reverse(solution);
+        
+        return solution;
     }
     
     
@@ -53,8 +65,8 @@ public class KnapsackProblemSolver
      * @return  a table that contains the answer from our dynamic programming 
      *          algorithm, or null if the inputs are invalid.
      */
-    public static long[][] setUpTable(List<Story> stories, 
-                                     int capacity)
+    protected static long[][] setUpTable(List<Story> stories, 
+                                       int capacity)
     {
         //Problem constraints:
         //Let:
@@ -84,6 +96,7 @@ public class KnapsackProblemSolver
         int capacityBound = capacity + 1;
         
         long[][] table = new long[numElements][capacityBound];
+//        List<List<Long>> table = new ArrayList<>(numElements); //[numElements][capacityBound];
         
         //Initialize row 0 to 0
         for(int k = 0; k < capacityBound; k++)
@@ -119,6 +132,7 @@ public class KnapsackProblemSolver
         return table;
     }
     
+    
     /**
      * Gets the optimal solution from the dynamic programming computation of the
      * {0,1}-Knapsack problem.
@@ -131,7 +145,7 @@ public class KnapsackProblemSolver
      *          lowest to highest priority (in returnable order), then we expect
      *          the solution to maintain this order.  
      */
-    public static List<Story> getOptimalSolution(long[][] table, 
+    protected static List<Story> getOptimalSolution(long[][] table, 
                                                  List<Story> stories)
     {
         //The optimal solution that will be returned.
@@ -179,74 +193,5 @@ public class KnapsackProblemSolver
         
         return optimalStorySet;
         
-    }
-    
-    
-    /**
-     * FOR DEBUGGING:
-     * 
-     * Method to print out the table where (0,0) is in the bottom left and 
-     * (stories.size() + 1, capacity + 1) is in the upper right.
-     * @param table
-     */
-    public static void printTable(int[][] table)
-    {
-        for(int row = table.length - 1; row >=0 ; row--)
-        {
-            for(int col = table[row].length - 1; col >= 0; col--)
-            {
-            
-                System.out.print(String.format("%4d  ", table[row][table[row].length - 1 -col]));
-            }
-            System.out.println();
-        }
-        
-        System.out.println();
-    }
-    
-    
-    /**
-     * Example main
-     * @param args
-     */
-    public static void main(String args[])
-    {
-        //TODO -- change this into a test case!
-        //This was valid before we "inverted" the priorities.
-//        List<Story> stories = Arrays.asList(new Story("1", 4, 3),
-//                                            new Story("2", 3, 2),
-//                                            new Story("3", 2, 4),
-//                                            new Story("4", 3, 4));
-        
-        List<Story> stories = Arrays.asList(new Story("1", 4, 3),
-                                            new Story("2", 3, 4),
-                                            new Story("3", 2, 2),
-                                            new Story("4", 3, 2));
-        
-        int capacity = 6;
-        
-        long[][] table = setUpTable(stories, capacity);
-        
-        
-        for(int row = table.length - 1; row >=0 ; row--)
-        {
-            for(int col = table[row].length - 1; col >= 0; col--)
-            {
-            
-                System.out.print(String.format("%10d  ", table[row][table[row].length - 1 -col]));
-            }
-            System.out.println();
-        }
-        
-        List<Story> optStories = getOptimalSolution(table, stories);
-        
-        //optStories should contain stories 3 and 4.
-        
-        System.out.println("\nOptimal soluion:");
-        for(Story story : optStories)
-        {
-            System.out.println(story.Id + "  Points: " + story.Points 
-                               + "  Priority: " + story.Priority);
-        }
     }
 }

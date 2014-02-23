@@ -6,13 +6,13 @@
  * prohibited without the express consent of the copyright holder except as 
  * permitted by law.
  */
-package uk.co.bbc.iplayer.tracking;
+package uk.co.bbc.iplayer.tracking.impl;
 
 import java.util.List;
 
-import uk.co.bbc.iplayer.tracking.db.StoryDB;
+import uk.co.bbc.iplayer.tracking.IBacklog;
+import uk.co.bbc.iplayer.tracking.Story;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
-import uk.co.bbc.iplayer.tracking.knapsack.KnapsackProblemSolver;
 import uk.co.bbc.iplayer.tracking.messages.Messages;
 
 /**
@@ -109,10 +109,9 @@ public class Backlog implements IBacklog
         //Ordered stories is never null.
         List<Story> orderedStories = this.storyDB.getAllStoriesInPriorityOrder();
         
-        long[][] solutionTable = KnapsackProblemSolver.setUpTable(orderedStories, 
-                                                                  totalPointsAchievable);
-        return KnapsackProblemSolver.getOptimalSolution(solutionTable, 
-                                                        orderedStories);
+        //Finds the set of stories that fills up the sprint and maximizes the
+        //  value to the customer (as defined by the priority of the story).
+        return KnapsackProblemSolver.solve(orderedStories, totalPointsAchievable);
     }
     
     

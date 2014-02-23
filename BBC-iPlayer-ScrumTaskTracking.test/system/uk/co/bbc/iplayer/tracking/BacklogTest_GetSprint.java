@@ -18,8 +18,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.impl.Backlog;
+import uk.co.bbc.iplayer.tracking.impl.StoryDB;
 import uk.co.bbc.iplayer.tracking.messages.Messages;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
@@ -126,7 +127,7 @@ public class BacklogTest_GetSprint extends TestUsingDB
     //-------------------------------------------------------------------------
     /**
      * Test method for 
-     * {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
+     * {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
      * 
      * This allows us to verify that the sprint size is being checked before 
      * trying to assemble a sprint.
@@ -166,7 +167,15 @@ public class BacklogTest_GetSprint extends TestUsingDB
             
             //else
             //Check that we got the right error message
-            String expectedMessage = Messages.getString("StoryNonPositivePoints");
+            String expectedMessage;
+            if(this.sprintSize == Integer.MAX_VALUE)
+            {
+                expectedMessage = Messages.getString("StoryPointsTooBig", Integer.MAX_VALUE);
+            }
+            else
+            {
+                expectedMessage = Messages.getString("StoryNonPositivePoints");
+            }
             Assert.assertEquals(expectedMessage, e.getMessage());
             return;
         }

@@ -19,8 +19,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.co.bbc.iplayer.tracking.db.StoryDB;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.impl.Backlog;
+import uk.co.bbc.iplayer.tracking.impl.StoryDB;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
 /**
@@ -85,7 +86,7 @@ public class BacklogTest extends TestUsingDB
     //  TEST CASES
     //-------------------------------------------------------------------------
     /**
-     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
      * Checks that we cannot add two stories with the same id.
      * @throws TaskTrackerException 
      */
@@ -136,7 +137,7 @@ public class BacklogTest extends TestUsingDB
     
 
     /**
-     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#Remove(java.lang.String)}.
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#Remove(java.lang.String)}.
      * @throws TaskTrackerException 
      */
     @Test
@@ -178,7 +179,7 @@ public class BacklogTest extends TestUsingDB
      *      sprint.
      */
     /**
-     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
      * 
      * This attempts to plan something when the database is empty and gets back
      * an empty list.
@@ -188,7 +189,7 @@ public class BacklogTest extends TestUsingDB
     @Test
     public void testGetSprint_noStories() throws TaskTrackerException
     {
-        int sprintSize = Integer.MAX_VALUE;
+        int sprintSize = 1000;
         
         //Plan an iteration
         List<Story> sprintPlan = this.backlog.getSprint(sprintSize);
@@ -204,7 +205,7 @@ public class BacklogTest extends TestUsingDB
     
     
     /**
-     * Test method for {@link uk.co.bbc.iplayer.tracking.Backlog#getSprint(int)}.
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
      * 
      * This initializes the database with stories that will not fit in a sprint 
      * and results in an empty sprint list.
