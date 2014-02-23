@@ -8,10 +8,15 @@
  */
 package uk.co.bbc.iplayer.tracking.impl;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.co.bbc.iplayer.tracking.Story;
@@ -24,6 +29,100 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  */
 public class StoryDBTest extends TestUsingDB
 {
+    //-------------------------------------------------------------------------
+    //  INNER CLASSES
+    //-------------------------------------------------------------------------
+    /**
+     * A comparator class to use to sort the elements.
+     */
+    protected class CompareStories implements Comparator<Story>
+    {
+        /**
+         * Returns the comparison of the ids (counting null as less than
+         * any non-null string).
+         * @param thisStory  a story to compare
+         * @param thatStory  the other story to compare
+         * @return  the comparison of the id values of the stories.
+         */
+        @Override
+        public int compare(Story thisStory,
+                           Story thatStory)
+        {
+            if(thisStory.Id == null)
+            {
+                if(thatStory.Id == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else
+            {
+                if(thatStory.Id == null)
+                {
+                    return 1;
+                }
+            }
+            return thisStory.Id.compareTo(thatStory.Id);
+        }
+    }
+    
+    
+    //-------------------------------------------------------------------------
+    //  DATA MEMBERS
+    //-------------------------------------------------------------------------
+    /**
+     * The object under test.
+     */
+    protected StoryDB storyDB;
+    
+    /**
+     * The list of stories in the DB.
+     */
+    protected List<Story> storiesInDB;
+    
+    
+    //-------------------------------------------------------------------------
+    //  SET-UP / TEAR-DOWN
+    //-------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     * @throws TaskTrackerException 
+     */
+    @Before
+    @Override
+    public void setUp() throws InstantiationException,
+                               IllegalAccessException,
+                               SQLException, TaskTrackerException
+    {
+        super.setUp();
+        
+        this.storyDB = new StoryDB();
+        
+        //Initialize the test case by adding the given stories to the database.
+        //We are using the key as our oracle here.  Don't mess it up!
+        this.storiesInDB = Arrays.asList(new Story("3",  40,   2),
+                                         new Story("4",  20,   2),
+                                         new Story("5", 101,   2),
+                                         new Story("1",   2,   1),
+                                         new Story("7",  33,   3),
+                                         new Story("2",   2,   1),
+                                         new Story("8",  75,  81),
+                                         new Story("6",  70,   2),
+                                         new Story("9", 999, 999));
+        
+        
+        for(Story story : storiesInDB)
+        {
+            //We skip add here since we don't need the extra checks and we 
+            //  aren't testing that.
+            storyDB.addStory(story);
+        }
+    }
+    
 
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.impl.StoryDB#getAllStoriesInPriorityOrder()}.
@@ -35,25 +134,9 @@ public class StoryDBTest extends TestUsingDB
     @Test
     public void testGetAllStoriesInPriorityOrder() throws TaskTrackerException
     {
-        StoryDB storyDB = new StoryDB();
-        
-        //Initialize the test case by adding the given stories to the database.
-        //We are using the key as our oracle here.  Don't mess it up!
-        List<Story> stories = Arrays.asList(new Story("3",  40,  2),
-                                            new Story("4",  20,  2),
-                                            new Story("5", 101,  2),
-                                            new Story("1",   2,  1),
-                                            new Story("7",  33,  3),
-                                            new Story("2",   2,  1),
-                                            new Story("8",  75, 81),
-                                            new Story("6",  70,  2));
-        
-        for(Story story : stories)
-        {
-            //We skip add here since we don't need the extra checks and we 
-            //  aren't testing that.
-            storyDB.addStory(story);
-        }
+        List<Story> expectedOrderedStories = new ArrayList<>(this.storiesInDB);
+        Collections.sort(expectedOrderedStories, 
+                         new CompareStories());
         
         List<Story> orderedStories = storyDB.getAllStoriesInPriorityOrder();
         
@@ -76,6 +159,7 @@ public class StoryDBTest extends TestUsingDB
             lastStoryId = currentStoryId;
             lastPriority = story.Priority;
         }
+        
+        Assert.assertEquals(expectedOrderedStories, orderedStories);
     }
-
 }

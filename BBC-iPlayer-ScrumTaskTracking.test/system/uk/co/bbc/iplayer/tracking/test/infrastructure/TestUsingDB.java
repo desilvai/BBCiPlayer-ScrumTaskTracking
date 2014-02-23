@@ -18,6 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.apache.derby.jdbc.EmbeddedDriver;
 
+import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
 import uk.co.bbc.iplayer.tracking.impl.StoryDB;
 import uk.co.bbc.iplayer.tracking.impl.StoryDB.STORY_FIELDS;
 
@@ -61,11 +62,15 @@ public class TestUsingDB
      * @throws InstantiationException  if the DB driver could not be created.
      * @throws SQLException  if there is a problem connecting and creating the 
      *                  DB.
+     * @throws TaskTrackerException  if a child overrides this method and 
+     *                  something bad happens.  See the child's implementation
+     *                  for details.
      */
     @Before
     public void setUp() throws InstantiationException,
                                IllegalAccessException,
-                               SQLException
+                               SQLException,
+                               TaskTrackerException
     {
         // Set up derby to output errors to system error.
         Properties systemProperties = System.getProperties();

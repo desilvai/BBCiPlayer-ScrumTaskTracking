@@ -8,6 +8,8 @@
  */
 package uk.co.bbc.iplayer.tracking.impl;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.IBacklog;
@@ -21,14 +23,44 @@ import uk.co.bbc.iplayer.tracking.messages.Messages;
  */
 public class Backlog implements IBacklog
 {
+    //-------------------------------------------------------------------------
+    //  CONSTANTS
+    //-------------------------------------------------------------------------
+    /**
+     * The maximum length of a story's ID.
+     */
     public static final int MAX_ID_LENGTH = 32;
     
+    /**
+     * The lower boundary (exclusive) of any stoy's point value.
+     */
+    private static final int POINT_LOWER_BOUND = 0;
+    
+    /**
+     * The lower boundary (exclusive) of any stoy's priority.
+     */
+    private static final int PRIORITY_LOWER_BOUND = 0;
+    
+    /**
+     * If the number of (stories * capacity) exceeds this threshold, we want to
+     * do some approximating so we don't run out of memory.
+     */
+    private static final int PACKING_APPROXIMATION_THRESHOLD = 1000000;
+    
+    
+    //-------------------------------------------------------------------------
+    //  DATA MEMBERS
+    //-------------------------------------------------------------------------
     /**
      * The story database wrapper.  This abstracts out the SQL and allows for 
      * mocking.
      */
     protected StoryDB storyDB = new StoryDB();
-
+    
+    
+    //-------------------------------------------------------------------------
+    //  INTERFACE IMPLEMENTATION
+    //-------------------------------------------------------------------------
     /**
      * {@inheritDoc}
      */
@@ -96,22 +128,66 @@ public class Backlog implements IBacklog
         //  value is correct but we didn't find anything.
         checkPointValue(totalPointsAchievable);
             
+        //Ordered stories is never null.
+        List<Story> orderedStories = this.storyDB.getAllStoriesInPriorityOrder();
         
         /**
          * OK, so the idea here is that we can formulate the problem as the 
          * {0,1}-knapsack problem and get the highest possible value in the 
          * sprint (in Scrum, we use priority as a proxy for how much value the 
-         * customer places on the story).  However, we need to finesse the 
-         * problem a little to make it work.  In the knapsack problem, each 
-         * item's value is positive, but our priorities are not.  To get around
-         * this, we can either set the 
+         * customer places on the story).  However, we needed to finesse the 
+         * problem a little to make it work, so we bounded the priority and 
+         * point-values so they are strictly positive.
+         * 
+         * Further, because this problem is NP-complete it is possible that we 
+         * will take up too much time and space (it takes 
+         * O(|orderedStories| * totalPointsAchievable) time and space, so we 
+         * will do some approximation if our problem is too big.  Our very
+         * naive approximation takes the highest priority items and just adds 
+         * them to the proposed solution until we have made the 
+         * potential-solution space small enough to run the knapsack algorithm.
          */
-        //Ordered stories is never null.
-        List<Story> orderedStories = this.storyDB.getAllStoriesInPriorityOrder();
+        
+        int pointsRemainingInSprint = totalPointsAchievable;
+        List<Story> sprintPlan = new ArrayList<>();
+        
+        
+        
+        //Approximate until we get to a small enough value that we can use 
+        //  the optimal solution.
+        //Delete is expensive, so we are going to drop the element from the list
+        //      by passing a sublist into the solver.  The story was either 
+        //      added or it is too big.  Don't bother the Knapsack problem
+        //      solver with it.
+        int position = 0;
+        for(position = 0; position < orderedStories.size(); position++)
+        {
+            //If we are small enough that we can do the rest using the 
+            //      optimal solution finder, then do that.
+            if((orderedStories.size() - position) * pointsRemainingInSprint <= PACKING_APPROXIMATION_THRESHOLD)
+            {
+                break;
+            }
+            
+            Story story = orderedStories.get(position);
+            
+            if(story.Points <= (pointsRemainingInSprint))
+            {
+                sprintPlan.add(story);
+            }
+        }
         
         //Finds the set of stories that fills up the sprint and maximizes the
         //  value to the customer (as defined by the priority of the story).
-        return KnapsackProblemSolver.solve(orderedStories, totalPointsAchievable);
+        List<Story> optimalSolution = KnapsackProblemSolver.solve(orderedStories.subList(0, position), 
+                                                                  totalPointsAchievable);
+        
+        //Insert the stories from the approximation into the optimal solution 
+        //      set so they are ordered by priority (then age).  Since we took 
+        //      the stories that will fit in order from the list of stories,
+        //      we know that the contents of orderedStories should come first. 
+        sprintPlan.addAll(optimalSolution);
+        return sprintPlan;
     }
     
     
@@ -155,7 +231,7 @@ public class Backlog implements IBacklog
     private static final void checkPointValue(int points) 
             throws TaskTrackerException
     {
-        if(points <= 0)
+        if(points <= POINT_LOWER_BOUND)
         {
             throw new TaskTrackerException(Messages.getString("StoryNonPositivePoints"));
         }
@@ -178,7 +254,7 @@ public class Backlog implements IBacklog
     private static final void checkPriorityValue(int priority) 
             throws TaskTrackerException
     {
-        if(priority <= 0)
+        if(priority <= PRIORITY_LOWER_BOUND)
         {
             throw new TaskTrackerException(Messages.getString("StoryNonPositivePriority"));
         }

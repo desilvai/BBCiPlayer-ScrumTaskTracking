@@ -54,12 +54,13 @@ public class BacklogTest extends TestUsingDB
      * @throws InstantiationException  if the DB driver could not be created.
      * @throws SQLException  if there is a problem connecting and creating the 
      *                  DB.
+     * @throws TaskTrackerException 
      */
     @Before
     @Override
     public void setUp() throws InstantiationException,
                                IllegalAccessException,
-                               SQLException
+                               SQLException, TaskTrackerException
     {
         super.setUp();
         this.backlog = new Backlog();

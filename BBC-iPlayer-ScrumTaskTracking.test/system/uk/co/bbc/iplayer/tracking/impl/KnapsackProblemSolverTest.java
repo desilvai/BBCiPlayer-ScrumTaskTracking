@@ -10,6 +10,7 @@ package uk.co.bbc.iplayer.tracking.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -77,6 +78,21 @@ public class KnapsackProblemSolverTest
         
         
         List<Story> optStories = KnapsackProblemSolver.solve(stories, capacity);
+//        long[][] solutionTable = KnapsackProblemSolver.setUpTable(stories, 
+//                                                                          capacity);
+//        printTable(solutionTable);
+//        List<Story> optStories = KnapsackProblemSolver.getOptimalSolution(solutionTable, 
+//                                                                          stories);
+//        
+//        //Reverse the order of the list so the highest priority stories come first.
+//        Collections.reverse(optStories);
+        
+        System.out.println("\nOptimal soluion:");
+        for(Story story : optStories)
+        {
+            System.out.println(story.Id + "  Points: " + story.Points 
+                               + "  Priority: " + story.Priority);
+        }
         
         //optStories should contain stories 3 and 4.
         Assert.assertEquals(expected, optStories);
@@ -90,14 +106,14 @@ public class KnapsackProblemSolverTest
      * (stories.size() + 1, capacity + 1) is in the upper right.
      * @param table
      */
-    public static void printTable(int[][] table)
+    public static void printTable(long[][] table)
     {
         for(int row = table.length - 1; row >=0 ; row--)
         {
             for(int col = table[row].length - 1; col >= 0; col--)
             {
             
-                System.out.print(String.format("%4d  ", table[row][table[row].length - 1 -col]));
+                System.out.print(String.format("%10d  ", table[row][table[row].length - 1 -col]));
             }
             System.out.println();
         }

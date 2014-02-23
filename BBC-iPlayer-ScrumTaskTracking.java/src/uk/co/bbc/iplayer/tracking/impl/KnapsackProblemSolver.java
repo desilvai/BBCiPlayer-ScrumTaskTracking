@@ -20,6 +20,9 @@ import uk.co.bbc.iplayer.tracking.Story;
  * - http://en.wikipedia.org/wiki/Knapsack_problem#0.2F1_Knapsack_Problem
  * - http://www.micsymposium.org/mics_2005/papers/paper102.pdf
  * - http://www.youtube.com/watch?v=kH7weFvjLPY
+ * 
+ * Java 2D arrays are just 1D arrays of pointers to another set of arrays, so we
+ * do not get any benefit from using lists instead of arrays. 
  */
 public class KnapsackProblemSolver
 {
@@ -66,7 +69,7 @@ public class KnapsackProblemSolver
      *          algorithm, or null if the inputs are invalid.
      */
     protected static long[][] setUpTable(List<Story> stories, 
-                                       int capacity)
+                                         int capacity)
     {
         //Problem constraints:
         //Let:
@@ -146,7 +149,7 @@ public class KnapsackProblemSolver
      *          the solution to maintain this order.  
      */
     protected static List<Story> getOptimalSolution(long[][] table, 
-                                                 List<Story> stories)
+                                                    List<Story> stories)
     {
         //The optimal solution that will be returned.
         List<Story> optimalStorySet = new ArrayList<>();
@@ -159,7 +162,7 @@ public class KnapsackProblemSolver
         
         int row = table.length - 1;
         int col = table[row].length - 1;
-        
+             
         long valueRemaining = table[row][col];
         
         //This backtracks through the solution table to give us the set of
