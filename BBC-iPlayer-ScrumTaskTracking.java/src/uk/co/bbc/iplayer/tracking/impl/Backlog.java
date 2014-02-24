@@ -10,10 +10,13 @@ package uk.co.bbc.iplayer.tracking.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import uk.co.bbc.iplayer.tracking.IBacklog;
 import uk.co.bbc.iplayer.tracking.Story;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
+import uk.co.bbc.iplayer.tracking.messages.LogConfig;
 import uk.co.bbc.iplayer.tracking.messages.Messages;
 
 /**
@@ -45,6 +48,7 @@ public class Backlog implements IBacklog
      * do some approximating so we don't run out of memory.
      */
     public static final int PACKING_APPROXIMATION_THRESHOLD = 1000000;
+
     
     
     //-------------------------------------------------------------------------
@@ -57,6 +61,27 @@ public class Backlog implements IBacklog
     protected StoryDB storyDB = new StoryDB();
     
     
+    /**
+     * The logger we will use to log problems and diagnostic messages.
+     */
+    protected Logger logger;
+    
+    
+    
+    //-------------------------------------------------------------------------
+    //  CONSTRUCTOR
+    //-------------------------------------------------------------------------
+    /**
+     * Constructor
+     */
+    public Backlog()
+    {
+        LogConfig.setUpLogger();
+        this.logger = Logger.getLogger(this.getClass().getPackage().getName());
+    }
+    
+    
+    
     //-------------------------------------------------------------------------
     //  INTERFACE IMPLEMENTATION
     //-------------------------------------------------------------------------
@@ -66,12 +91,25 @@ public class Backlog implements IBacklog
     @Override
     public void Add(Story story) throws TaskTrackerException
     {
-        //TODO -- log exceptions.
+        logger.fine(Messages.getString("LogAdd", 
+                                         story.Id, 
+                                         story.Points, 
+                                         story.Priority));
+
         //Check that the fields of the story are valid.  If they aren't, an 
         //  exception is thrown.
-        checkId(story.Id);
-        checkPointValue(story.Points);
-        checkPriorityValue(story.Priority);
+        try
+        {
+            checkId(story.Id);
+            checkPointValue(story.Points);
+            checkPriorityValue(story.Priority);
+        }
+        catch(TaskTrackerException e)
+        {
+            //Log the error message
+            logger.log(Level.INFO, e.getMessage(), e);
+            throw e;
+        }
         
         
         // Add the story to the backlog
@@ -81,11 +119,14 @@ public class Backlog implements IBacklog
         }
         catch(TaskTrackerException e)
         {
-            //TODO -- Add logging code.
+            logger.log(Level.SEVERE, e.getMessage(), e);
             
-            //TODO -- would this be better done in the story DB code?
-            throw new TaskTrackerException(Messages.getString("DBErrorAdd", 
-                                                              story.Id));
+            String errorMessage = Messages.getString("DBErrorAdd", 
+                                                     story.Id);
+            logger.log(Level.SEVERE, errorMessage);
+            
+            //Would this be better done in the story DB code?
+            throw new TaskTrackerException(errorMessage, e);
         }
     }
 
@@ -96,11 +137,23 @@ public class Backlog implements IBacklog
     @Override
     public Story Remove(String id) throws TaskTrackerException
     {
+        logger.fine(Messages.getString("LogRemove", 
+                                         id));
+        
         try
         {
             //Check that the id is valid.
             checkId(id);
+        }
+        catch(TaskTrackerException e)
+        {
+            logger.log(Level.INFO, e.getMessage(), e);
+            throw e;
+        }
             
+        
+        try
+        {
             //Get the story.  We will not return this until the delete succeeds.
             Story story = this.storyDB.selectStory(id);
             this.storyDB.deleteStory(id);
@@ -109,7 +162,7 @@ public class Backlog implements IBacklog
         }
         catch(TaskTrackerException e)
         {
-            //TODO -- Log the exception.
+            logger.log(Level.SEVERE, e.getMessage(), e);
             throw e;
         }
     }
@@ -121,15 +174,34 @@ public class Backlog implements IBacklog
     @Override
     public List<Story> getSprint(int totalPointsAchievable) throws TaskTrackerException
     {
-        //TODO -- log errors 
+        logger.fine(Messages.getString("LogSprintPlan", 
+                                         totalPointsAchievable));
         
-        //If the totalPointsAchievable is impossible (non-positive), throw an
-        //  exception.  This indicates something is wrong rather than the 
-        //  value is correct but we didn't find anything.
-        checkPointValue(totalPointsAchievable);
+        try
+        {
+            //If the totalPointsAchievable is impossible (non-positive), throw 
+            //  an exception.  This indicates something is wrong rather than the 
+            //  value is correct but we didn't find anything.
+            checkPointValue(totalPointsAchievable);
+        }
+        catch(TaskTrackerException e)
+        {
+            logger.log(Level.INFO, e.getMessage(), e);
+            throw e;
+        }
+        
             
-        //Ordered stories is never null.
-        List<Story> orderedStories = this.storyDB.getAllStoriesInPriorityOrder();
+        List<Story> orderedStories;
+        try
+        {
+            //Ordered stories is never null.
+            orderedStories = this.storyDB.getAllStoriesInPriorityOrder();
+        }
+        catch(TaskTrackerException e)
+        {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            throw e;
+        }
         
         /**
          * OK, so the idea here is that we can formulate the problem as the 
@@ -180,8 +252,17 @@ public class Backlog implements IBacklog
         
         //Finds the set of stories that fills up the sprint and maximizes the
         //  value to the customer (as defined by the priority of the story).
-        List<Story> optimalSolution = KnapsackProblemSolver.solve(orderedStories.subList(position, orderedStories.size()), 
-                                                                  totalPointsAchievable);
+        List<Story> optimalSolution;
+        try
+        {
+            optimalSolution = KnapsackProblemSolver.solve(orderedStories.subList(position, orderedStories.size()), 
+                                                          totalPointsAchievable);
+        }
+        catch(OutOfMemoryError e)
+        {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            throw e;
+        }
         
         //Insert the stories from the approximation into the optimal solution 
         //      set so they are ordered by priority (then age).  Since we took 
