@@ -14,6 +14,8 @@ To execute the application you will need:
 
 
 ##Directory Structure
+| Path | Description |
+|:----:|:-----------:|
 | `/` | The project directory |
 | `/BBC-iPlayer-ScrumTaskTracking.java/` | The application sub-project directory |
 | `/BBC-iPlayer-ScrumTaskTracking.test/` | The testing sub-project directory |
