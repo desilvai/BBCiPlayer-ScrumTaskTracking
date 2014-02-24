@@ -11,6 +11,7 @@ package uk.co.bbc.iplayer.tracking;
 import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -237,4 +238,87 @@ public class BacklogTest extends TestUsingDB
                             sprintPlan.size());
     }
 
+    
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
+     * 
+     * This initializes the database with stories that will not fit in a sprint 
+     * and results in an empty sprint list.
+     * @throws TaskTrackerException  if there was a problem setting up the story
+     *                  database.
+     */
+    @Test
+    public void testGetSprint_goodSolution() throws TaskTrackerException
+    {
+        List<Story> expected = Arrays.asList(new Story("3", 2, 2),
+                                             new Story("4", 3, 2));
+        
+        List<Story> stories = new ArrayList<>();
+        stories.add(new Story("1", 4, 3));
+        stories.add(new Story("2", 3, 4));
+        stories.addAll(expected);
+        
+        int capacity = 6;
+        
+        this.getSprintRunner(capacity, stories, expected);
+    }
+    
+    
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
+     * 
+     * This initializes the database with stories that will not fit in a sprint 
+     * and results in an empty sprint list.
+     * @throws TaskTrackerException  if there was a problem setting up the story
+     *                  database.
+     */
+    @Test
+    public void testGetSprint_goodSolutionReordered() throws TaskTrackerException
+    {
+        List<Story> expected = Arrays.asList(new Story("3", 2, 2),
+                                             new Story("4", 3, 2));
+        
+        List<Story> stories = new ArrayList<>();
+        stories.add(expected.get(0));
+        stories.add(new Story("1", 4, 3));
+        stories.add(new Story("2", 3, 4));
+        stories.addAll(expected.subList(1, expected.size()));
+        
+        int capacity = 6;
+        
+        this.getSprintRunner(capacity, stories, expected);
+    }
+     
+    
+    
+    //-------------------------------------------------------------------------
+    //  HELPER METHODS
+    //-------------------------------------------------------------------------
+    /**
+     * Runs a valid test case comparing the results (the generated sprint plan)
+     * with the expected.
+     * @param capacity  the capacity of the sprint
+     * @param stories  the potential stories for the plan
+     * @param expected  the expected list of stories
+     * @throws TaskTrackerException  if something went wrong when adding the 
+     *                  stories to the DB or when getting the sprint.
+     */
+    private void getSprintRunner(int capacity, 
+                                 List<Story> stories, 
+                                 List<Story> expected) throws TaskTrackerException
+    {
+        for(Story story : stories)
+        {
+            //We skip add here since we don't need the extra checks and we 
+            //  aren't testing that.
+            this.storyDB.addStory(story);
+        }
+        
+        //Plan an iteration
+        List<Story> sprintPlan = this.backlog.getSprint(capacity);
+        
+        //optStories should contain stories 3 and 4.
+        Assert.assertNotNull(sprintPlan);
+        Assert.assertEquals(expected, sprintPlan);
+    }
 }
