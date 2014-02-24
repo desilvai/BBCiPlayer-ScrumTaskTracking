@@ -58,7 +58,7 @@ public class KnapsackProblemSolverTest
      * Test method for {@link uk.co.bbc.iplayer.tracking.impl.KnapsackProblemSolver#solve(java.util.List, int)}.
      * 
      * Run the same test again with a different order and confirm that the order
-     * is preserved.  We need to check this because we need to guarantee a given
+     * is preserved.  Need to check this because I need to guarantee a given
      * order of the solution.
      */
     @Test

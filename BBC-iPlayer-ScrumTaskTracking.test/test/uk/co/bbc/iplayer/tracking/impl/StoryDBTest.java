@@ -103,7 +103,7 @@ public class StoryDBTest extends TestUsingDB
         this.storyDB = new StoryDB();
         
         //Initialize the test case by adding the given stories to the database.
-        //We are using the key as our oracle here.  Don't mess it up!
+        //I use the key as our oracle here.  Don't mess it up!
         this.storiesInDB = Arrays.asList(new Story("3",  40,   2),
                                          new Story("4",  20,   2),
                                          new Story("5", 101,   2),
@@ -117,7 +117,7 @@ public class StoryDBTest extends TestUsingDB
         
         for(Story story : storiesInDB)
         {
-            //We skip add here since we don't need the extra checks and we 
+            //I skip add here since I don't need the extra checks and we 
             //  aren't testing that.
             storyDB.addStory(story);
         }
@@ -143,8 +143,8 @@ public class StoryDBTest extends TestUsingDB
         int lastStoryId = 0;
         int lastPriority = 0;
         
-        //Checks to make sure the stories are in order based on the key (we
-        //  chose our keys so that they would be in order after the sort).
+        //Checks to make sure the stories are in order based on the key (I
+        //  chose the keys so that they would be in order after the sort).
         for(Story story : orderedStories)
         {
             System.out.println(story.Id);

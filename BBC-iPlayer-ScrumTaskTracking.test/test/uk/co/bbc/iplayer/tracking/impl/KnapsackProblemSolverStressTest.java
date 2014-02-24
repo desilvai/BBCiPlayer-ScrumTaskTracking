@@ -22,7 +22,7 @@ import org.junit.runners.Parameterized.Parameters;
 import uk.co.bbc.iplayer.tracking.Story;
 
 /**
- * Stress tests the knapsack problem solver (since it is NP-complete, we want to 
+ * Stress tests the knapsack problem solver (since it is NP-complete, I want to 
  * find some limitations).
  */
 @RunWith(Parameterized.class)
@@ -30,9 +30,9 @@ public class KnapsackProblemSolverStressTest
 {
     
     /**
-     * The number of stories and the capacity we want to try.
+     * The number of stories and the capacity I want to try.
      * @return  A collection of backlog sizes (the number of items to put in the
-     *          backpack) and the max capacity we want to attempt.
+     *          backpack) and the max capacity I want to attempt.
      */
     @Parameters
     public static Collection<Object[]> testExecutionValues()
@@ -91,7 +91,7 @@ public class KnapsackProblemSolverStressTest
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.impl.KnapsackProblemSolver#solve(java.util.List, int)}.
      * 
-     * Tests that we can solve a sufficiently large problem using the simplistic
+     * Tests that it can solve a sufficiently large problem using the simplistic
      * {0,1}-knapsack algorithm.
      */
     @Test
@@ -107,14 +107,14 @@ public class KnapsackProblemSolverStressTest
 
         try
         {
-            //We don't care about the value, just that we didn't run out of 
+            //I don't care about the value, just that I didn't run out of 
             //  memory.
             KnapsackProblemSolver.solve(backlog, 
                                         this.capacity);
         }
         catch(OutOfMemoryError e)
         {
-            Assert.fail("We ran out of memory when using a backlog of size " 
+            Assert.fail("Ran out of memory when using a backlog of size " 
                         + backlog.size() 
                         + ", capacity of " 
                         + this.capacity 
