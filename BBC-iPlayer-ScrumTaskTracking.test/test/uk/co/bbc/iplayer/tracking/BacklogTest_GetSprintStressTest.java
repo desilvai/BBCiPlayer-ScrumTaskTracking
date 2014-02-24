@@ -42,7 +42,8 @@ public class BacklogTest_GetSprintStressTest extends TestUsingDB
                     //backlogSize,  sprintCapacity
                     {    1000,      1000},
                     {   10000,      1000},
-                    {  100000,      1000},
+                    {  100000,      1000},      //Poor performance -- takes >84s
+                                                //  need more time to fix.
                     
                     //There are too many copies in memory for these to work.
                     //  Also, this problem is NP complete.

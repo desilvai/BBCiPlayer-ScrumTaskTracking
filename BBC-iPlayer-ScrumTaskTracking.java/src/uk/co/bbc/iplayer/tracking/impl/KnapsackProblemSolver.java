@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.Story;
+import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
 
 /**
  * Solves the knapsack problem using a simplistic dynamic programming algorithm.  
@@ -41,9 +42,13 @@ public class KnapsackProblemSolver
     /**
      * Finds the optimal set of stories that fit in a sprint (optimal being the
      * set of stories with the highest possible priority that will fit in the 
-     * sprint).
+     * sprint).  This operation is O(stories.size() * sprintCapacity) in both
+     * space and time, so you really need to keep the problem small.  This
+     * method will let you shoot yourself in the foot, so be aware!  Do the
+     * checks before invocation.
      * @param stories  the set of stories to consider
-     * @param sprintCapacity  the capacity of the sprint.
+     * @param sprintCapacity  the capacity of the sprint.  This must be less 
+     *          than Integer.MAX_VALUE.
      * @return  the set of stories that maximizes the value to the customer (the
      *          highest possible set of priorities)
      */

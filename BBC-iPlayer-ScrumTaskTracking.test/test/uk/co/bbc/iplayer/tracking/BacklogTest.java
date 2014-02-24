@@ -23,6 +23,7 @@ import org.junit.Test;
 import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
 import uk.co.bbc.iplayer.tracking.impl.Backlog;
 import uk.co.bbc.iplayer.tracking.impl.StoryDB;
+import uk.co.bbc.iplayer.tracking.messages.Messages;
 import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
 
 /**
@@ -237,7 +238,7 @@ public class BacklogTest extends TestUsingDB
                             0, 
                             sprintPlan.size());
     }
-
+    
     
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
@@ -288,6 +289,88 @@ public class BacklogTest extends TestUsingDB
         
         this.getSprintRunner(capacity, stories, expected);
     }
+    
+    
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
+     * 
+     * Tests that a negative capacity results in an empty sprint plan.
+     * @throws TaskTrackerException  if there was a problem setting up the story
+     *                  database.
+     */
+    @Test
+    public void testGetSprint_negativeCapacity() throws TaskTrackerException
+    {
+        List<Story> stories = new ArrayList<>();
+        stories.add(new Story("3", 2, 2));
+        stories.add(new Story("1", 4, 3));
+        stories.add(new Story("2", 3, 4));
+        stories.add(new Story("4", 3, 2));
+        
+        int capacity = -1;
+        
+        for(Story story : stories)
+        {
+            //We skip add here since we don't need the extra checks and we 
+            //  aren't testing that.
+            this.storyDB.addStory(story);
+        }
+        
+        try
+        {
+            //Plan an iteration
+            this.backlog.getSprint(capacity);
+            
+            fail("Expected an exception when capacity is set to " + capacity 
+                 + ".");
+        }
+        catch(TaskTrackerException e)
+        {
+            Assert.assertEquals(Messages.getString("StoryNonPositivePoints"),
+                                e.getMessage());
+        }
+    }
+    
+    
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#getSprint(int)}.
+     * 
+     * Tests that a negative capacity results in an empty sprint plan.
+     * @throws TaskTrackerException  if there was a problem setting up the story
+     *                  database.
+     */
+    @Test
+    public void testGetSprint_zeroCapacity() throws TaskTrackerException
+    {
+        List<Story> stories = new ArrayList<>();
+        stories.add(new Story("3", 2, 2));
+        stories.add(new Story("1", 4, 3));
+        stories.add(new Story("2", 3, 4));
+        stories.add(new Story("4", 3, 2));
+        
+        int capacity = 0;
+        
+        for(Story story : stories)
+        {
+            //We skip add here since we don't need the extra checks and we 
+            //  aren't testing that.
+            this.storyDB.addStory(story);
+        }
+        
+        try
+        {
+            //Plan an iteration
+            this.backlog.getSprint(capacity);
+            
+            fail("Expected an exception when capacity is set to " + capacity 
+                 + ".");
+        }
+        catch(TaskTrackerException e)
+        {
+            Assert.assertEquals(Messages.getString("StoryNonPositivePoints"),
+                                e.getMessage());
+        }
+    }
      
     
     
@@ -307,17 +390,21 @@ public class BacklogTest extends TestUsingDB
                                  List<Story> stories, 
                                  List<Story> expected) throws TaskTrackerException
     {
-        for(Story story : stories)
+        if(stories != null)
         {
-            //We skip add here since we don't need the extra checks and we 
-            //  aren't testing that.
-            this.storyDB.addStory(story);
+            for(Story story : stories)
+            {
+                //We skip add here since we don't need the extra checks and we 
+                //  aren't testing that.
+                this.storyDB.addStory(story);
+            }
         }
         
         //Plan an iteration
         List<Story> sprintPlan = this.backlog.getSprint(capacity);
         
-        //optStories should contain stories 3 and 4.
+        //Check that the sprintPlan is never null and that we get what we 
+        //      expected.
         Assert.assertNotNull(sprintPlan);
         Assert.assertEquals(expected, sprintPlan);
     }

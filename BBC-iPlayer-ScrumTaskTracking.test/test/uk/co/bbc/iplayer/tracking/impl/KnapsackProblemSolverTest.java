@@ -46,13 +46,6 @@ public class KnapsackProblemSolverTest
         
         //optStories should contain stories 3 and 4.
         Assert.assertEquals(expected, optStories);
-        
-//        System.out.println("\nOptimal soluion:");
-//        for(Story story : optStories)
-//        {
-//            System.out.println(story.Id + "  Points: " + story.Points 
-//                               + "  Priority: " + story.Priority);
-//        }
     }
     
     
@@ -88,6 +81,27 @@ public class KnapsackProblemSolverTest
         }
         
         //optStories should contain stories 3 and 4.
+        Assert.assertEquals(expected, optStories);
+    }
+    
+    
+    /**
+     * Test method for {@link uk.co.bbc.iplayer.tracking.impl.KnapsackProblemSolver#solve(java.util.List, int)}.
+     * 
+     * Checks that we get an empty list if the set of stories is null.
+     */
+    @Test
+    public void testSolve_nullStories()
+    {
+        //Expect an empty list if send a null list of stories.
+        List<Story> expected = new ArrayList<>();
+        List<Story> stories = null;
+        int capacity = 6;
+        
+        List<Story> optStories = KnapsackProblemSolver.solve(stories, capacity);
+        
+        //Check the results.
+        Assert.assertNotNull(optStories);
         Assert.assertEquals(expected, optStories);
     }
     
