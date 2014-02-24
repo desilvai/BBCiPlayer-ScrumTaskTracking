@@ -41,6 +41,7 @@ After downloading the source, you will need to:
 To clean the project directories, substitute the command `ant clean` instead of `ant` in the above instructions.
 
 
+
 ##Discussion of Solution
 This project takes in and stores stories in a relational database.  It then allows callers to plan a sprint based on the available stories.  Callers can also remove stories from the database (and can thus plan successive sprints by removing the stories from the last plan an generating another plan).  
 
@@ -49,3 +50,6 @@ I chose to use Derby's in-memory database as our relational database.  I chose t
 Since this code is supposed to be part of a web-service (per the project description), I would expect that we would use the application server's connection pool rather than opening and closing connections as we do in the source code.  
 
 Optimizing the value for the sprint plan (that is capturing the highest combined priorities -- lowest numbers) is an NP-complete problem, so I try to approximate the solution if it is too large and then switch to the {0,1}-knapsack algorithm that requires Theta(numberOfStories * sprintCapacity).  I assume that since this is a sprint planning tool, performance is not critical, but is still a necessary consideration (to prevent customer frustration) and thus put in the approximation aspects.  There is still a problem with having so much in memory that can be fixed by using a proper relational database that supports paging through the results (so we can reduced the amount loaded into memory).  I would also change the threshold for approximating vs. finding the optimal solution based on customer requiremend, but since I do not have that available, I picked a value.
+
+##Test Extention
+Additional tests may be added to the application.  To do this, you will need to set up the in-memory database.  The code to do this can be found in `uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB` in the `BBC-iPlayer-ScrumTaskTracking.test` sub-project.
