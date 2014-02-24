@@ -36,15 +36,18 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  *  - MAX_INT                   (too big values)
  *  
  * We therefore for boundary-value testing, need the following test cases:
- *  - Points == MIN_INT      Expect: fail
- *  - Points == -100         Expect: fail     -- Only one of these are needed
- *  - Points == -1           Expect: fail     --
- *  - Points == 0            Expect: fail
- *  - Points == 1            Expect: success
- *  - Points == 2            Expect: success  -- Only one of these are needed
- *  - Points == 50           Expect: success  --
- *  - Points == MAX_INT - 1  Expect: fail
- *  - Points == MAX_INT      Expect: fail
+ *  - Points == MIN_INT                     Expect: fail
+ *  - Points == -100                        Expect: fail     -- Only one of these are needed
+ *  - Points == -1                          Expect: fail     --
+ *  - Points == 0                           Expect: fail
+ *  - Points == 1                           Expect: success
+ *  - Points == 2                           Expect: success  -- Only one of these are needed
+ *  - Points == 50                          Expect: success  --
+ *  - Points == maxPointsForKnapsack - 1    Expect: success
+ *  - Points == maxPointsForKnapsack        Expect: success
+ *  - Points == maxPointsForKnapsack - 1    Expect: success
+ *  - Points == MAX_INT - 1                 Expect: success
+ *  - Points == MAX_INT                     Expect: fail
  */
 @RunWith(value = Parameterized.class)
 public class BacklogTest_GetSprint extends TestUsingDB
@@ -57,19 +60,40 @@ public class BacklogTest_GetSprint extends TestUsingDB
     @Parameters
     public static Collection<Object[]> testExecutionValues()
     {
+        int numStoriesInTest = getStories().size();
+        
+        //BTW, integer division.
+        int maxPointsForKnapsack = Backlog.PACKING_APPROXIMATION_THRESHOLD / numStoriesInTest;
+        
         Object[][] data = new Object[][]
                 {
-                    {Integer.MIN_VALUE,     false},
-                    {-100,                  false},
-                    {-1,                    false},
-                    {0,                     false},
-                    {1,                     true},
-                    {2,                     true},
-                    {50,                    true},
-                    {Integer.MAX_VALUE - 1, true},
-                    {Integer.MAX_VALUE,     false}
+                    {Integer.MIN_VALUE,         false},
+                    {-100,                      false},
+                    {-1,                        false},
+                    {0,                         false},
+                    {1,                         true},
+                    {2,                         true},
+                    {50,                        true},
+                    {maxPointsForKnapsack - 1,  true},
+                    {maxPointsForKnapsack,      true},
+                    {maxPointsForKnapsack + 1,  true},
+                    {Integer.MAX_VALUE - 1,     true},
+                    {Integer.MAX_VALUE,         false}
                 };
         return Arrays.asList(data);
+    }
+    
+    
+    /**
+     * Gets the set of stories to use in the test.
+     * @return  the set of stories for testing.
+     */
+    private static final List<Story> getStories()
+    {
+        return Arrays.asList(new Story("Story 1",  3, 3),
+                             new Story("Story 2",  1, 3),
+                             new Story("Story 3",  1, 2),
+                             new Story("Story 4", 40, 1));
     }
     
     
@@ -137,10 +161,7 @@ public class BacklogTest_GetSprint extends TestUsingDB
     public void testGetSprint() throws TaskTrackerException
     {
         //Initialize the test case by adding the given stories to the database.
-        List<Story> stories = Arrays.asList(new Story("Story 1",  3, 3),
-                                            new Story("Story 2",  1, 3),
-                                            new Story("Story 3",  1, 2),
-                                            new Story("Story 4", 40, 1));
+        List<Story> stories = getStories();
         
         for(Story story : stories)
         {
@@ -189,11 +210,21 @@ public class BacklogTest_GetSprint extends TestUsingDB
         //The call was a success and I expected as much.
         Assert.assertNotNull(sprintPlan);
         
-        //I'm only checking the size, not the exact contents of the plan.
-        //  Complete checking should be done elsewhere.
+        //We are checking the size and the properties of the answer.
         Assert.assertTrue("The sprint plan should have been positive, "
                               + "instead it was " + sprintPlan.size() + ".", 
                           sprintPlan.size() > 0);
+        
+        
+        //Ensure that they are in priority order.
+        int lastPriority = Integer.MIN_VALUE;
+        for(Story story : sprintPlan)
+        {
+            Assert.assertTrue("Stories not listed in priority order.", 
+                              lastPriority <= story.Priority);
+            
+            lastPriority = story.Priority;
+        }
     }
 
 }

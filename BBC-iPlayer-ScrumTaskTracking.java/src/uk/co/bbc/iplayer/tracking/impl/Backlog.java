@@ -45,7 +45,7 @@ public class Backlog implements IBacklog
      * If the number of (stories * capacity) exceeds this threshold, we want to
      * do some approximating so we don't run out of memory.
      */
-    private static final int PACKING_APPROXIMATION_THRESHOLD = 1000000;
+    public static final int PACKING_APPROXIMATION_THRESHOLD = 1000000;
     
     
     //-------------------------------------------------------------------------
@@ -164,7 +164,8 @@ public class Backlog implements IBacklog
         {
             //If we are small enough that we can do the rest using the 
             //      optimal solution finder, then do that.
-            if((orderedStories.size() - position) * pointsRemainingInSprint <= PACKING_APPROXIMATION_THRESHOLD)
+            long tableSize = (long)(orderedStories.size() - position) * (long)pointsRemainingInSprint;
+            if(tableSize <= PACKING_APPROXIMATION_THRESHOLD)
             {
                 break;
             }
@@ -179,7 +180,7 @@ public class Backlog implements IBacklog
         
         //Finds the set of stories that fills up the sprint and maximizes the
         //  value to the customer (as defined by the priority of the story).
-        List<Story> optimalSolution = KnapsackProblemSolver.solve(orderedStories.subList(0, position), 
+        List<Story> optimalSolution = KnapsackProblemSolver.solve(orderedStories.subList(position, orderedStories.size()), 
                                                                   totalPointsAchievable);
         
         //Insert the stories from the approximation into the optimal solution 
