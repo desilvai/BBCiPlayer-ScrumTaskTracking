@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.Story;
-import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
 
 /**
  * Solves the knapsack problem using a simplistic dynamic programming algorithm.  

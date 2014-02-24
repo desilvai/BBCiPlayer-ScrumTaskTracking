@@ -44,7 +44,7 @@ import uk.co.bbc.iplayer.tracking.test.infrastructure.TestUsingDB;
  *  SQL injection should cause subsequent checks on the DB to fail.
  */
 @RunWith(value = Parameterized.class)
-public class BacklogTest_AddId extends TestUsingDB
+public class BacklogTest_Id extends TestUsingDB
 {
     /**
      * The data for boundary value testing of the points part of the story to be
@@ -116,7 +116,7 @@ public class BacklogTest_AddId extends TestUsingDB
      * @param expectSuccess  the expected outcome of the test (true if the 
      *      test should succeed, false otherwise).
      */
-    public BacklogTest_AddId(String id, boolean expectSuccess)
+    public BacklogTest_Id(String id, boolean expectSuccess)
     {
         this.id = id;
         this.expectSuccess = expectSuccess;
@@ -205,4 +205,55 @@ public class BacklogTest_AddId extends TestUsingDB
         Assert.assertEquals(expected, actualStory);
     }
 
+    
+    /**
+     * Test method for 
+     * {@link uk.co.bbc.iplayer.tracking.impl.Backlog#Add(uk.co.bbc.iplayer.tracking.Story)}.
+     * 
+     * This attempts to remove a story based on some id (it isn't really in the
+     * database) 
+     * 
+     * We then check for success or failure based on what we were told to expect
+     * (if {@link #expectSuccess} is true, we expect success, otherwise we 
+     * expect failure -- that is a non-id related error message).
+     * @throws TaskTrackerException 
+     */
+    @Test
+    public void testRemove() throws TaskTrackerException
+    {
+        try
+        {
+            this.backlog.Remove(this.id);
+            
+            Assert.fail("Expected an exception regardless of what we did.");
+        }
+        catch(TaskTrackerException e)
+        {
+            String message = e.getMessage();
+            if(message.equals(Messages.getString("StoryNullId")))
+            {
+                if(this.id == null && !this.expectSuccess)
+                {
+                    return;
+                }
+            }
+            else if(message.equals(Messages.getString("StoryIdTooLong", 
+                                                       StoryDB.ID_FIELD_SIZE, 
+                                                       this.id.length())))
+            {
+                if(this.id != null && !this.expectSuccess)
+                {
+                    return;
+                }
+            }
+            
+            if(!this.expectSuccess)
+            {
+                //Otherwise, it was an unexpected error
+                Assert.fail("Expected an error message, but we didn't get the "
+                        + "right one.  Instead, we got " + e.getMessage() + ".");
+            }
+            //Otherwise, we are good!
+        }
+    }
 }

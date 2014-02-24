@@ -141,6 +141,9 @@ public class BacklogTest extends TestUsingDB
 
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.impl.Backlog#Remove(java.lang.String)}.
+     * 
+     * Checks that we can remove a story that is in the database successfully
+     * 
      * @throws TaskTrackerException 
      */
     @Test
