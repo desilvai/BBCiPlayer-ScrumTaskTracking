@@ -43,6 +43,11 @@ public class BacklogTest_GetSprintStressTest extends TestUsingDB
                     {    1000,      1000},
                     {   10000,      1000},
                     {  100000,      1000},
+                    
+                    //There are too many copies in memory for these to work.
+                    //  Also, this problem is NP complete.
+                    
+                    //The next one takes over 450s to complete.
                     //{ 1000000,       500}     -- fails
                     //{ 1000000,      1000}     -- fails
                     //{  100000,     10000},    -- fails

@@ -23,6 +23,10 @@ import uk.co.bbc.iplayer.tracking.Story;
  * 
  * Java 2D arrays are just 1D arrays of pointers to another set of arrays, so we
  * do not get any benefit from using lists instead of arrays. 
+ * 
+ * This uses a lot of memory and a lot of cycles.  There may be more 
+ * memory-efficient versions, but I'm unsure if they will allow recovery, so
+ * for now, I'm using the well-known solution.
  */
 public class KnapsackProblemSolver
 {

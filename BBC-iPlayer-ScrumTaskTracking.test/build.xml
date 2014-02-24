@@ -11,6 +11,11 @@
     <path id="project.classpath">
         <pathelement path="${classpath}" />
     </path>
+	
+	<path id="junit.classpath">
+		<pathelement location="${dir.dist}/${test.jar.name}" />
+		<pathelement path="${classpath}"/>
+	</path>
     
     
     
@@ -19,13 +24,6 @@
     	
     	<echo>"ANT VERSION : ${ant.version}"</echo>
         <echo>"JAVA VERSION: ${ant.java.version}"</echo>
-        
-        <!-- DEBUG INFO -->
-        <echoproperties/>
-        
-        <pathconvert property="classpathProp" refid="project.classpath"/>
-
-        <echo>Classpath is ${classpathProp}</echo> 
     </target>
     
     
@@ -37,6 +35,11 @@
         <javac includeantruntime="false" srcdir="${dir.src}" destdir="${dir.bin}">
             <classpath refid="project.classpath" />
         </javac>
+    	
+    	<!--Copy over the properties files-->
+    	<copy todir="${dir.bin}">
+           <fileset dir="${dir.src}" includes="**/*.properties"/>
+        </copy>
     </target>
     
     
@@ -46,32 +49,43 @@
         <mkdir dir="${dir.dist}"/>
 
         <!-- Put everything in ${dir.bin} into the MyProject-${DSTAMP}.jar file -->
-        <jar jarfile="${dir.dist}/${test.jar.name}" basedir="${dir.bin}"/>
+        <jar jarfile="${dir.dist}/${test.jar.name}" basedir="${dir.bin}">
+        	<fileset dir="${dir.bin}">
+        		<include name="**/*.class" />
+        		<include name="**/*.properties" />
+    		</fileset>
+    	</jar>
     </target>
 	
 	
 	<target name="unitTest" depends="dist" description="Runs the JUnit tests">
-        <mkdir dir="${dir.test.results}"/>
+        <delete dir="${dir.test.results}"/>
+		<mkdir dir="${dir.test.results}"/>
+		
+		<!--
+		<pathconvert property="classpath2Prop" refid="junit.classpath"/>
+
+        <echo>Classpath is ${classpath2Prop}</echo>
+        --> 
         
-        <junit haltonfailure="no">
+        <junit haltonfailure="no" includeantruntime="false">
+        	<classpath refid="junit.classpath" />
             <batchtest todir="${dir.test.results}">
             	<resources>
                     <zipfileset src="${dir.dist}/${test.jar.name}">
 	                    <include name="**/*Test*.class" />
-                    	<exclude name="**/TestUsingDB*" />
+                    	<exclude name="**/TestUsingDB.class" />
+                    	<exclude name="**/*$*.class" />
 	                </zipfileset>
 	            </resources>
             </batchtest>
             <formatter type="xml" />
-            <classpath>
-            	<pathelement location="${dir.dist}/${test.jar.name}"/>
-                <path refid="project.classpath" />
-            </classpath>
         </junit>
     </target>
     
     
     <target name="report" depends="unitTest">
+    	<delete dir="${dir.test.reports}"/>
         <mkdir dir="${dir.test.reports}" />
 
         <junitreport todir="${dir.test.reports}">
@@ -89,5 +103,6 @@
        <delete dir="${dir.dist}"/>
        <delete dir="${dir.test.results}"/>
        <delete dir="${dir.test.reports}"/>
+       <delete dir="${dir.test}" />
     </target>
 </project>

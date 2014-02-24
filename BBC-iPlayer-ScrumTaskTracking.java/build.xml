@@ -38,6 +38,11 @@
         <javac includeantruntime="false" srcdir="${dir.src}" destdir="${dir.bin}">
             <classpath refid="project.classpath" />
         </javac>
+    	
+    	<!--Copy over the properties files-->
+    	<copy todir="${dir.bin}">
+    	   <fileset dir="${dir.src}" includes="**/*.properties"/>
+    	</copy>
     </target>
     
     
@@ -47,7 +52,12 @@
         <mkdir dir="${dir.dist}"/>
 
         <!-- Put everything in ${dir.bin} into the MyProject-${DSTAMP}.jar file -->
-        <jar jarfile="${dir.dist}/${jar.name}" basedir="${dir.bin}"/>
+        <jar jarfile="${dir.dist}/${jar.name}">
+        	<fileset dir="${dir.bin}">
+        	    <include name="**/*.class" />
+        	    <include name="**/*.properties" />
+            </fileset>
+        </jar>
     </target>
     
     

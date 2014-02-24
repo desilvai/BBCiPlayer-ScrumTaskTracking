@@ -9,7 +9,6 @@
 package uk.co.bbc.iplayer.tracking.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import uk.co.bbc.iplayer.tracking.IBacklog;
