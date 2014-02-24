@@ -31,7 +31,7 @@ import uk.co.bbc.iplayer.tracking.Story;
 public class KnapsackProblemSolver
 {
     /**
-     * 
+     * Hides the constructor
      */
     private KnapsackProblemSolver()
     {
@@ -103,7 +103,6 @@ public class KnapsackProblemSolver
         int capacityBound = capacity + 1;
         
         long[][] table = new long[numElements][capacityBound];
-//        List<List<Long>> table = new ArrayList<>(numElements); //[numElements][capacityBound];
         
         //Initialize row 0 to 0
         for(int k = 0; k < capacityBound; k++)

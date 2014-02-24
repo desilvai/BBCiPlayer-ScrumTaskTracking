@@ -165,33 +165,22 @@ public class StoryDB
             + StoryDB.STORY_TABLE_PRIMARY_KEY + " ASC";
     
     
-    /**
-     * SQL to select all stories from the DB (with paging support).  This list 
-     * will be returned in priority order (from lowest number to highest) with 
-     * ties ordered by age in database (the OID).
-     */
-    private static final String PAGE_ALL_STORIES = "SELECT " 
-            + StringUtils.join(STORY_FIELDS.values(), ",") 
-            + " FROM "
-            + "(SELECT ROW_NUMBER() OVER ("
-            + " ORDER BY " + STORY_FIELDS.PRIORITY.toString() + " ASC," 
-            + StoryDB.STORY_TABLE_PRIMARY_KEY + " ASC"
-            + ") AS ROWNUM"
-            + ", T.*"
-            + " FROM " + STORY_TABLE + " T)" 
-            + "WHERE ROWNUM BETWEEN ? AND ?";
-    
-    
+    //This doesn't work on Derby.
 //    /**
-//     * SQL to select all stories from the DB with a point value below the given 
-//     * bound.  This list will be returned in priority order (from lowest number 
-//     * to highest) with ties ordered by age in database.
+//     * SQL to select all stories from the DB (with paging support).  This list 
+//     * will be returned in priority order (from lowest number to highest) with 
+//     * ties ordered by age in database (the OID).
 //     */
-//    //Not using between because it functions differently based on the different 
-//    //  DB vendors.
-//    private static final String GET_ALL_STORIES_BOUNDED = GET_ALL_STORIES 
-//            + " WHERE " + STORY_FIELDS.POINTS.toString() + " <= ?" 
-//            + " AND " + STORY_FIELDS.POINTS.toString() + " >= ?";  
+//    private static final String PAGE_ALL_STORIES = "SELECT " 
+//            + StringUtils.join(STORY_FIELDS.values(), ",") 
+//            + " FROM "
+//            + "(SELECT ROW_NUMBER() OVER ("
+//            + " ORDER BY " + STORY_FIELDS.PRIORITY.toString() + " ASC," 
+//            + StoryDB.STORY_TABLE_PRIMARY_KEY + " ASC"
+//            + ") AS ROWNUM"
+//            + ", T.*"
+//            + " FROM " + STORY_TABLE + " T)" 
+//            + "WHERE ROWNUM BETWEEN ? AND ?";
     
     
     /**
@@ -239,13 +228,6 @@ public class StoryDB
         }
         catch(SQLException e)
         {
-//            String message = Messages.getString(DBErrorAdd, story.Id);
-//            switch(e.getSQLState())
-//            {
-//                case SQL_ERROR_NULL_VALUE:
-//                    e.
-//                    
-//            }
             throw new TaskTrackerException(e);
         }
     }
@@ -282,13 +264,6 @@ public class StoryDB
         }
         catch(SQLException e)
         {
-//            String message = Messages.getString(DBErrorAdd, story.Id);
-//            switch(e.getSQLState())
-//            {
-//                case SQL_ERROR_NULL_VALUE:
-//                    e.
-//                    
-//            }
             throw new TaskTrackerException(e);
         }
     }
@@ -375,75 +350,30 @@ public class StoryDB
     }
     
     
-    /**
-     * Gets a list of the stories in the stories database in range [lowBound, 
-     * highBound] ordered by priority (low number to high number) then the 
-     * table's primary key (in insertion order).
-     * @param lowBound  the lower bound of the results set.
-     * @param highBound  the high bound of the resuls set.
-     * @throws TaskTrackerException  if an error occurred during the retrieval.
-     */
-    public List<Story> pageThroughStories(int lowBound, 
-                                          int highBound) throws TaskTrackerException
-    {
-        //Flip them if they come in in incorrect order.
-        if(lowBound > highBound)
-        {
-            int temp = highBound;
-            highBound = lowBound;
-            lowBound = temp;
-        }
-        
-        try(Connection connection = this.openConnection())
-        {
-            PreparedStatement getStatement = connection.prepareStatement(PAGE_ALL_STORIES);
-            getStatement.setInt(1, lowBound);
-            getStatement.setInt(2, highBound);
-
-            //Execute the statement
-            ResultSet results = getStatement.executeQuery();
-            
-            ArrayList<Story> allStories = new ArrayList<>();
-            while(results.next())
-            {
-                Story story = new Story();
-                story.Id = results.getString(STORY_FIELDS.ID.toString());
-                story.Points = results.getInt(STORY_FIELDS.POINTS.toString());
-                story.Priority = results.getInt(STORY_FIELDS.PRIORITY.toString());
-                
-                allStories.add(story);
-            }
-            
-            return allStories;
-        }
-        catch(SQLException e)
-        {
-            throw new TaskTrackerException(e);
-        }
-    }
-    
-    
 //    /**
-//     * Gets a list of all stories in the stories database ordered by priority 
-//     * (low number to high number) then the table's primary key (in insertion 
-//     * order).  This list is limited by a given bound (such as omitting stories 
-//     * with point values above the maximum number of points possible for a 
-//     * sprint).  The bounds are included in the results.
-//     * @param lowerBound  limits the returned values to those with point values
-//     *                          greater than or equal to this value
-//     * @param lowerBound  limits the returned values to those with point values
-//     *                          less than or equal to this value
+//     * Gets a list of the stories in the stories database in range [lowBound, 
+//     * highBound] ordered by priority (low number to high number) then the 
+//     * table's primary key (in insertion order).
+//     * @param lowBound  the lower bound of the results set.
+//     * @param highBound  the high bound of the resuls set.
 //     * @throws TaskTrackerException  if an error occurred during the retrieval.
 //     */
-//    public List<Story> getAllStoriesInPriorityOrder(int lowerBound, 
-//                                                    int upperBound) 
-//                                                            throws TaskTrackerException
+//    public List<Story> pageThroughStories(int lowBound, 
+//                                          int highBound) throws TaskTrackerException
 //    {
+//        //Flip them if they come in in incorrect order.
+//        if(lowBound > highBound)
+//        {
+//            int temp = highBound;
+//            highBound = lowBound;
+//            lowBound = temp;
+//        }
+//        
 //        try(Connection connection = this.openConnection())
 //        {
-//            PreparedStatement getStatement = connection.prepareStatement(GET_ALL_STORIES_BOUNDED);
-//            getStatement.setInt(1, upperBound);
-//            getStatement.setInt(2, lowerBound);
+//            PreparedStatement getStatement = connection.prepareStatement(PAGE_ALL_STORIES);
+//            getStatement.setInt(1, lowBound);
+//            getStatement.setInt(2, highBound);
 //
 //            //Execute the statement
 //            ResultSet results = getStatement.executeQuery();
@@ -466,6 +396,7 @@ public class StoryDB
 //            throw new TaskTrackerException(e);
 //        }
 //    }
+    
     
     
     /**

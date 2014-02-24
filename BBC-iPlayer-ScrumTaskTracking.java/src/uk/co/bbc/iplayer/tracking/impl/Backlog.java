@@ -17,7 +17,7 @@ import uk.co.bbc.iplayer.tracking.exceptions.TaskTrackerException;
 import uk.co.bbc.iplayer.tracking.messages.Messages;
 
 /**
- * @author desilva
+ * Implements the IBacklog interface.
  *
  */
 public class Backlog implements IBacklog
@@ -114,6 +114,7 @@ public class Backlog implements IBacklog
         }
     }
 
+    
     /**
      * {@inheritDoc}
      */

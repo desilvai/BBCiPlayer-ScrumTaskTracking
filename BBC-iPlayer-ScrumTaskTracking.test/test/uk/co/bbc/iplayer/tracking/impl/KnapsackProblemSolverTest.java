@@ -25,6 +25,8 @@ public class KnapsackProblemSolverTest
 
     /**
      * Test method for {@link uk.co.bbc.iplayer.tracking.impl.KnapsackProblemSolver#solve(java.util.List, int)}.
+     * 
+     * Tests that the knapsack problem solver returns the correct values.
      */
     @Test
     public void testSolve()
@@ -77,14 +79,6 @@ public class KnapsackProblemSolverTest
         
         
         List<Story> optStories = KnapsackProblemSolver.solve(stories, capacity);
-//        long[][] solutionTable = KnapsackProblemSolver.setUpTable(stories, 
-//                                                                          capacity);
-//        printTable(solutionTable);
-//        List<Story> optStories = KnapsackProblemSolver.getOptimalSolution(solutionTable, 
-//                                                                          stories);
-//        
-//        //Reverse the order of the list so the highest priority stories come first.
-//        Collections.reverse(optStories);
         
         System.out.println("\nOptimal soluion:");
         for(Story story : optStories)
